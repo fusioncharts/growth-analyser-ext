@@ -1,0 +1,16 @@
+{
+    "extends": "standard",
+    "plugins": [
+        "standard",
+        "promise"
+    ],
+    "globals": {
+    	"FusionCharts": true,
+    	"GrowthAnalyser": true
+    },
+    "rules": {
+    	"one-var": ["error", "always"],
+    	"unused-vars": ["warn"],
+    	"semi": ["error", "always"]
+    }
+}
