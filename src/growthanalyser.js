@@ -1,10 +1,7 @@
 'use strict';
 class GrowthAnalyser {
-  constructor () {
-    this.data = [
-      [1, 2, 3, 4, 5, 6],
-      [3, 4, 1, 2, 5, 9]
-    ];
+  constructor (data) {
+    this.data = data;
   }
   analyse (mode) {
     let i = 0,
@@ -24,7 +21,7 @@ class GrowthAnalyser {
         tempAr = [];
         for (j = 0, jj = dataAr[i].length; j < jj; ++j) {
           num = dataAr[i][j];
-          tempAr.push(100 * (num - checkNum) / num);
+          tempAr.push(100 * (num - checkNum) / checkNum);
         }
         nDataAr.push(tempAr);
       }
@@ -34,7 +31,7 @@ class GrowthAnalyser {
         checkNum = mode(dataAr[i]);
         for (j = 0, jj = dataAr[i].length; j < jj; ++j) {
           num = dataAr[i][j];
-          tempAr.push(100 * (num - checkNum) / num);
+          tempAr.push(100 * (num - checkNum) / checkNum);
         }
         nDataAr.push(tempAr);
       }
@@ -49,7 +46,7 @@ class GrowthAnalyser {
           } else {
             checkNum = num;
           }
-          tempAr.push(100 * (num - checkNum) / num);
+          tempAr.push(100 * (num - checkNum) / checkNum);
         }
         nDataAr.push(tempAr);
       }
@@ -64,7 +61,7 @@ class GrowthAnalyser {
           } else {
             checkNum = num;
           }
-          tempAr.push(100 * (num - checkNum) / num);
+          tempAr.push(100 * (num - checkNum) / checkNum);
         }
         nDataAr.push(tempAr);
       }
@@ -88,4 +85,3 @@ class GrowthAnalyser {
     return nDataAr;
   }
 }
-window.GrowthAnalyser = GrowthAnalyser;
