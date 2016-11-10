@@ -25,33 +25,6 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     require(requiredParams);
     // Init additional logic here
     function onInit (params) {
-      let chartInstance = params.chartInstance,
-        store = chartInstance.apiInstance.getComponentStore(),
-        storeDatasets = store.getAllDatasets(),
-        allDatasetArr = [],
-        i = 0,
-        ii = 0,
-        j = 0,
-        currentDs = {},
-        growthAnalyserArr = [];
-      for (i = 0; storeDatasets[i]; ++i) {
-        allDatasetArr[i] = [];
-        currentDs = storeDatasets[i];
-        if (currentDs && currentDs.series) {
-          for (j = 0; currentDs.series[j] && currentDs.series[j].data; ++j) {
-            allDatasetArr[i].push(currentDs.series[j].data);
-          }
-        }
-      }
-      // Getting growth analyser object from dataset array
-      for (i = 0, ii = allDatasetArr.length; i < ii; ++i) {
-        growthAnalyserArr.push(new GrowthAnalyser(allDatasetArr[i]));
-      }
-      // Saving retrieved growth analyser array to instance
-      instance.tsObject.growthAnalyserArr = growthAnalyserArr;
-      // saving dataset to instance
-      instance.tsObject.dataStore = storeDatasets;
-      window.g = params.globalReactiveModel;
     }
     window.a = this;
     return this;
@@ -67,21 +40,33 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
   };
 
   LegendExt.prototype.analyser = function (mode) {
-    var i = 0,
-      ii = 0,
-      j = 0,
-      jj = 0,
-      dataStore = this.tsObject.dataStore,
-      gaArr = this.tsObject.growthAnalyserArr,
-      gaOb = {};
-    for (i = 0, ii = gaArr.length; i < ii; ++i) {
-      gaOb = gaArr[i].analyse(mode);
-      for (j = 0, jj = gaOb.length; j < jj; ++j) {
-        dataStore[i].series[j].data = gaOb[j];
-      }
+    var store = this.tsObject.chartInstance.apiInstance.getComponentStore(),
+      canvas = store.getCanvasByIndex(0),
+      nav = store.getNavigatorByIndex(0),
+      comp = canvas.getComposition(),
+      ds = comp.dataset,
+      i,
+      idMap = {},
+      storeAr = [];
+    // Declaration ends
+    store = {};
+    ds.forEachSeries(function (a, b, c, series) {
+      store[series.getId()] = series.getOriginalData();
+    });
+    for (i in store) {
+      storeAr.push(store[i]);
+      idMap[i] = storeAr.length - 1;
+      // = store[i].map(function (e) { return 20 * e + (Math.random() * 1000); });
     }
-    // Rendering the change
-    this.renderChange();
+    console.log(storeAr);
+    storeAr = new GrowthAnalyser(storeAr).analyse(mode);
+    console.log(storeAr);
+
+    ds.setDataBySeries(function (series) {
+      series.setOriginalData(storeAr[idMap[series.getId()]]);
+    });
+
+    comp.impl.update();
   };
 
   LegendExt.prototype.getLogicalSpace = function () {

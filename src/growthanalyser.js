@@ -82,6 +82,13 @@ class GrowthAnalyser {
         nDataAr.push(tempAr);
       }
     }
+    for (i = 0, ii = nDataAr.length; i < ii; ++i) {
+      for (j = 0, jj = nDataAr[i].length; j < jj; ++j) {
+        if (!Number.isFinite(nDataAr[i][j])) {
+          nDataAr[i][j] = null;
+        }
+      }
+    }
     return nDataAr;
   }
 }
