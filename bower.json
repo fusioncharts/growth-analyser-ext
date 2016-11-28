@@ -1,0 +1,24 @@
+{
+  "name": "GrowthAnalyserFCTS",
+  "description": "Growth Analyser Extension for Fusioncharts Timeseries",
+  "main": "constructor.js",
+  "authors": [
+    "Pratyush-Debayan"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "Growth",
+    "Analyser",
+    "FusionCharts",
+    "Time",
+    "Series"
+  ],
+  "homepage": "https://github.com/fusioncharts/growth-analyser-ext",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
