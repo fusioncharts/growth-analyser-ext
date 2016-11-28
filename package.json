@@ -1,7 +1,7 @@
 {
-  "name": "canvas-lite-js",
+  "name": "GrowthAnalyserFCTS",
   "version": "0.0.1",
-  "description": "A light weight library for canvas",
+  "description": "Growth Analyser Extension for Fusioncharts Timeseries",
   "main": "constructor.js",
   "scripts": {
     "jsunit": "gulp test",
@@ -10,18 +10,15 @@
     "test": "gulp"
   },
   "repository": {
-    "url": "git@github.com:pratyushcrd/canvaslitejs.git",
+    "url": "https://github.com/fusioncharts/growth-analyser-ext.git",
     "type": "git"
   },
   "keywords": [
-    "canvas",
-    "lite",
-    "canvas lite",
-    "canvas-lite",
-    "light",
-    "weight"
+    "Growth Analyser",
+    "FusionCharts",
+    "Time Series"
   ],
-  "author": "Pratyush",
+  "author": "Pratyush-Debayan",
   "license": "MIT",
   "bugs": {
     "url": ""
