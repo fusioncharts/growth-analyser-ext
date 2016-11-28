@@ -40,28 +40,38 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
   };
 
   LegendExt.prototype.analyser = function (mode) {
-    var store = this.tsObject.chartInstance.apiInstance.getComponentStore(),
+    var ga = this.ga || {},
+      store = this.tsObject.chartInstance.apiInstance.getComponentStore(),
       canvas = store.getCanvasByIndex(0),
       nav = store.getNavigatorByIndex(0),
       comp = canvas.getComposition(),
-      ds = comp.dataset,
+      ds = ga.ds || comp.dataset,
       i,
-      idMap = {},
-      storeAr = [];
+      idMap = ga.idMap || {},
+      storeAr = ga.storeAr || [];
     // Declaration ends
+    window.a = this;
+    this.ga = ga;
     store = {};
-    ds.forEachSeries(function (a, b, c, series) {
-      store[series.getId()] = series.getOriginalData();
-    });
-    for (i in store) {
-      storeAr.push(store[i]);
-      idMap[i] = storeAr.length - 1;
-      // = store[i].map(function (e) { return 20 * e + (Math.random() * 1000); });
+    if (!ga.idMap) {
+      console.log(1);
+      ds.forEachSeries(function (a, b, c, series) {
+        store[series.getId()] = series.getOriginalData();
+      });
+      for (i in store) {
+        storeAr.push(store[i]);
+        idMap[i] = storeAr.length - 1;
+        // = store[i].map(function (e) { return 20 * e + (Math.random() * 1000); });
+      }
+      ga.idMap = idMap;
+      ga.ds = ds;
+      ga.storeAr = storeAr;
     }
-    console.log(storeAr);
+    console.log(storeAr[0]);
+    storeAr = storeAr.map((a) => {
+      return a.map((b) => { return b; });
+    });
     storeAr = new GrowthAnalyser(storeAr).analyse(mode);
-    console.log(storeAr);
-
     ds.setDataBySeries(function (series) {
       series.setOriginalData(storeAr[idMap[series.getId()]]);
     });
