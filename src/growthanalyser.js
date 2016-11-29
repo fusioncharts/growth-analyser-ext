@@ -1,7 +1,10 @@
 'use strict';
 class GrowthAnalyser {
   constructor (data) {
-    this.data = data;
+    this.data = data.map((a) => {
+      return a.map((b) => { return b; });
+    });
+    this.Formulae = Formulae;
   }
   analyse (mode) {
     let i = 0,
@@ -14,9 +17,8 @@ class GrowthAnalyser {
       dataAr = this.data,
       nDataAr = [],
       tempAr = [];
-
     if (!isNaN(mode)) { // Handling a number
-      checkNum = mode;
+      checkNum = +mode;
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
         for (j = 0, jj = dataAr[i].length; j < jj; ++j) {
@@ -25,7 +27,8 @@ class GrowthAnalyser {
         }
         nDataAr.push(tempAr);
       }
-    } else if (typeof mode === 'function') {
+    } else if (typeof mode === 'string') {
+      mode = this.Formulae[mode];
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
         checkNum = mode(dataAr[i]);
@@ -92,3 +95,50 @@ class GrowthAnalyser {
     return nDataAr;
   }
 }
+
+var Formulae = {
+  min: (arr) => {
+    return arr.reduce((a, b) => {
+      return a > b ? b : a;
+    });
+  },
+  max: (arr) => {
+    return arr.reduce((a, b) => {
+      return a < b ? b : a;
+    });
+  },
+  mean: (arr) => {
+    return arr.reduce((a, b) => {
+      return a + b;
+    }) / arr.length;
+  },
+  median: (arr) => {
+    return arr.map((a) => a).sort((a, b) => { return a - b; })[arr.length / 2];
+  },
+  sd: (values) => {
+    function average (data) {
+      var sum, avg;
+      sum = data.reduce(function (sum, value) {
+        return sum + value;
+      }, 0);
+
+      avg = sum / data.length;
+      return avg;
+    }
+    var avg = 0,
+      squareDiffs = 0,
+      sqrDiff = 0,
+      avgSquareDiff = 0,
+      stdDev = 0,
+      diff = 0;
+    avg = average(values);
+    squareDiffs = values.map(function (value) {
+      diff = value - avg;
+      sqrDiff = diff * diff;
+      return sqrDiff;
+    });
+    avgSquareDiff = average(squareDiffs);
+    stdDev = Math.sqrt(avgSquareDiff);
+    return stdDev;
+  }
+};

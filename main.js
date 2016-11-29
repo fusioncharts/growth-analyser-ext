@@ -62,7 +62,9 @@ var tsChart;
                 height: '550',
                 dataFormat: 'json',
                 dataSource: {
-                    chart: {
+                    chart: 
+                    {
+                      'exportEnabled': 1,
                         axes: [
                             {
                                 x: { },

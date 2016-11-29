@@ -1,6 +1,5 @@
 FusionCharts.register('extension', ['private', 'legend-ext', function () {
   function LegendExt () {
-    console.log('hello');
     window.ga = this;
     this.toolbox = FusionCharts.getComponent('api', 'toolbox');
     this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
@@ -20,41 +19,40 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
 
   LegendExt.prototype.analyser = function (mode) {
     var ga = this.ga || {},
-      store = this.tsObject.chartInstance.apiInstance.getComponentStore(),
+      store = this.tsObject.apiInstance.getComponentStore(),
       canvas = store.getCanvasByIndex(0),
       nav = store.getNavigatorByIndex(0),
       comp = canvas.getComposition(),
       ds = ga.ds || comp.dataset,
       i,
       idMap = ga.idMap || {},
-      storeAr = ga.storeAr || [];
+      storeAr = ga.storeAr || [],
+      nStoreArr = [];
     // Declaration ends
-    window.a = this;
     this.ga = ga;
-    store = {};
-    if (!ga.idMap) {
-      console.log(1);
-      ds.forEachSeries(function (a, b, c, series) {
-        store[series.getId()] = series.getOriginalData();
-      });
-      for (i in store) {
-        storeAr.push(store[i]);
-        idMap[i] = storeAr.length - 1;
-        // = store[i].map(function (e) { return 20 * e + (Math.random() * 1000); });
+    if (!ga.storeAr) {
+      store = {};
+      if (!ga.idMap) {
+        ds.forEachSeries(function (a, b, c, series) {
+          store[series.getId()] = series.getOriginalData();
+        });
+        for (i in store) {
+          storeAr.push(store[i]);
+          idMap[i] = storeAr.length - 1;
+          // = store[i].map(function (e) { return 20 * e + (Math.random() * 1000); });
+        }
+        ga.idMap = idMap;
+        ga.ds = ds;
+        ga.storeAr = storeAr;
+        ga.gAnalyser = new GrowthAnalyser(storeAr);
       }
-      ga.idMap = idMap;
-      ga.ds = ds;
-      ga.storeAr = storeAr;
     }
-    console.log(storeAr[0]);
-    storeAr = storeAr.map((a) => {
-      return a.map((b) => { return b; });
-    });
-    storeAr = new GrowthAnalyser(storeAr).analyse(mode);
+    nStoreArr = ga.gAnalyser.analyse(mode);
     ds.setDataBySeries(function (series) {
-      series.setOriginalData(storeAr[idMap[series.getId()]]);
+      if (nStoreArr.length) {
+        series.setOriginalData(nStoreArr[idMap[series.getId()]]);
+      }
     });
-
     comp.impl.update();
   };
 
@@ -86,7 +84,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
             reactiveModel,
             globalReactiveModel,
             spaceManagerInstance,
-            smartLabel) {
+            smartLabel,
+            chartInstance) {
         instance.xAxis = xAxis;
         instance.yAxis = yAxis;
         instance.graphics = graphics;
@@ -99,10 +98,12 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         instance.globalReactiveModel = globalReactiveModel;
         instance.spaceManagerInstance = spaceManagerInstance;
         instance.smartLabel = smartLabel;
+        instance.chartInstance = chartInstance;
       }
     ]);
     this.spaceManagerInstance = instance.spaceManagerInstance;
     this.globalReactiveModel = instance.globalReactiveModel;
+    this.tsObject = instance.chartInstance;
     this.startDt = instance.globalReactiveModel.model['x-axis-visible-range-start'];
     this.endDt = instance.globalReactiveModel.model['x-axis-visible-range-end'];
     this.startDataset = instance.globalReactiveModel.model['x-axis-absolute-range-start'];
@@ -110,15 +111,16 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     this.toolbars = [];
     this.measurement = {};
     this.toolbars.push(this.createToolbar());
-    // console.log(this.createToolbar());
-    // console.log(this.dateStart, this.dateEnd);
     return this;
   };
 
   LegendExt.prototype.createToolbar = function () {
     var toolbar,
       group,
-      selectMenu;
+      selectMenu,
+      self = this,
+      resetButton,
+      label;
 
     toolbar = new this.HorizontalToolbar({
       paper: this.graphics.paper,
@@ -144,6 +146,18 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       borderThickness: 0
     });
 
+    label = new this.toolbox.Label('Growth Analyser:', {
+      smartLabel: this.smartLabel,
+      paper: this.graphics.paper
+    }, {
+      text: {
+        style: {
+          'font-size': '14'
+        }
+      }
+    });
+    group.addSymbol(label);
+
     selectMenu = new this.toolbox.SelectSymbol({
       width: 100,
       height: 22
@@ -165,6 +179,9 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     }, {
       name: 'Dataset',
       value: 'analyse-dataset'
+    }, {
+      name: 'Relative position',
+      value: 'analyse-relposition'
     }], {
       strokeWidth: 1,
       stroke: 'rgba(102,102,102,0.5)',
@@ -179,14 +196,39 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       textOnChange: function () {
         // self.fromDate.blur();
         // self.startDate = self.fromDate.getText();
-        // console.log(self.fromDate.getText());
-        var obj = {};
-        console.log(selectMenu.value());
-        // obj['analyse-fixed-number']
-        // obj['analyse-functions']
-        // obj['analyse-position']
-        // obj['analyse-dataset']
-        // obj['analyse-functions']
+        // `.log(self.fromDate.getText());
+        if (selectMenu.value() === 'analyse-fixed-number') {
+          self.analyser(parseInt(window.prompt('Enter value')));
+        } else if (selectMenu.value() === 'analyse-functions') {
+          let str = window.prompt('Enter value');
+          self.analyser(str);
+        } else if (selectMenu.value() === 'analyse-position') {
+          self.analyser({position: 0});
+        } else if (selectMenu.value() === 'analyse-dataset') {
+          self.analyser({reldatasetposition: -1});
+        } else if (selectMenu.value() === 'analyse-relposition') {
+          self.analyser({relposition: -20});
+        }
+      }
+    });
+
+    resetButton = new this.toolbox.Symbol('RESET', true, {
+      paper: this.graphics.paper,
+      chart: this.chart,
+      smartLabel: this.smartLabel,
+      chartContainer: this.graphics.container
+    }, {
+      fill: '#555',
+      labelFill: '#00ff00',
+      hoverFill: '#00ff00',
+      width: 30,
+      height: 20,
+      btnTextStyle: {
+        fontSize: 11
+      }
+    }).attachEventHandlers({
+      click: function () {
+          // apply(1);
       }
     });
 
@@ -200,6 +242,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     });
 
     group.addSymbol(selectMenu);
+    group.addSymbol(resetButton);
     toolbar.addComponent(group);
     return toolbar;
   };

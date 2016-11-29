@@ -11,6 +11,7 @@
     "rules": {
     	"one-var": ["error", "always"],
     	"unused-vars": ["warn"],
+        "no-debugger": ["warn"],
     	"semi": ["error", "always"],
         "no-unused-vars": ["warn"]
     }
