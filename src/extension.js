@@ -120,7 +120,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       selectMenu,
       self = this,
       resetButton,
-      label;
+      label,
+      contextMenu;
 
     toolbar = new this.HorizontalToolbar({
       paper: this.graphics.paper,
@@ -146,103 +147,241 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       borderThickness: 0
     });
 
-    label = new this.toolbox.Label('Growth Analyser:', {
-      smartLabel: this.smartLabel,
-      paper: this.graphics.paper
-    }, {
-      text: {
-        style: {
-          'font-size': '14'
-        }
-      }
-    });
-    group.addSymbol(label);
+    // selectMenu = new this.toolbox.SelectSymbol({
+    //   width: 100,
+    //   height: 22
+    // }, {
+    //   paper: this.graphics.paper,
+    //   chart: this.chart,
+    //   smartLabel: this.smartLabel,
+    //   chartContainer: this.graphics.container
+    // }, [{
+    //   name: 'Fixed Number',
+    //   value: 'analyse-fixed-number'
+    // },
+    // {
+    //   name: 'Functions',
+    //   value: 'analyse-functions'
+    // }, {
+    //   name: 'Position',
+    //   value: 'analyse-position'
+    // }, {
+    //   name: 'Dataset',
+    //   value: 'analyse-dataset'
+    // }, {
+    //   name: 'Relative position',
+    //   value: 'analyse-relposition'
+    // }], {
+    //   strokeWidth: 1,
+    //   stroke: 'rgba(102,102,102,0.5)',
+    //   symbolStrokeWidth: 0,
+    //   labelFill: '#000000',
+    //   btnTextStyle: {
+    //     fontSize: 14
+    //   }
+    // });
 
-    selectMenu = new this.toolbox.SelectSymbol({
-      width: 100,
-      height: 22
-    }, {
+    // selectMenu.attachEventHandlers({
+    //   textOnChange: function () {
+    //     // self.fromDate.blur();
+    //     // self.startDate = self.fromDate.getText();
+    //     // `.log(self.fromDate.getText());
+    //     if (selectMenu.value() === 'analyse-fixed-number') {
+    //       self.analyser(parseInt(window.prompt('Enter value')));
+    //     } else if (selectMenu.value() === 'analyse-functions') {
+    //       let str = window.prompt('Enter value');
+    //       self.analyser(str);
+    //     } else if (selectMenu.value() === 'analyse-position') {
+    //       self.analyser({position: 0});
+    //     } else if (selectMenu.value() === 'analyse-dataset') {
+    //       self.analyser({reldatasetposition: -1});
+    //     } else if (selectMenu.value() === 'analyse-relposition') {
+    //       self.analyser({relposition: -20});
+    //     }
+    //   }
+    // });
+
+    // resetButton = new this.toolbox.Symbol('RESET', true, {
+    //   paper: this.graphics.paper,
+    //   chart: this.chart,
+    //   smartLabel: this.smartLabel,
+    //   chartContainer: this.graphics.container
+    // }, {
+    //   fill: '#555',
+    //   labelFill: '#00ff00',
+    //   hoverFill: '#00ff00',
+    //   width: 30,
+    //   height: 20,
+    //   btnTextStyle: {
+    //     fontSize: 11
+    //   }
+    // }).attachEventHandlers({
+    //   click: function () {
+    //       // apply(1);
+    //   }
+    // });
+
+    // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
+    //   paper: this.graphics.paper,
+    //   chart: this.chart,
+    //   smartLabel: this.smartLabel,
+    //   chartContainer: this.graphics.container
+    // }, {
+    //   width: 15,
+    //   height: 15,
+    //   strokeWidth: 1,
+    //   stroke: '#7f7f7f',
+    //   radius: 2
+    // });
+
+    // contextMenu.appendAsList([
+    //   {
+    //     'Export In PNG': {
+    //       handler: function () {
+    //           // console.log('Reset');
+    //       },
+    //       action: 'click'
+    //     }
+    //   },
+    //   {
+    //     'Export In PDF': {
+    //       handler: function () {
+    //           // console.log('Update');
+    //       },
+    //       action: 'click'
+    //     }
+    //   }
+    // ]);
+
+    contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
       paper: this.graphics.paper,
       chart: this.chart,
       smartLabel: this.smartLabel,
       chartContainer: this.graphics.container
-    }, [{
-      name: 'Fixed Number',
-      value: 'analyse-fixed-number'
-    },
-    {
-      name: 'Functions',
-      value: 'analyse-functions'
     }, {
-      name: 'Position',
-      value: 'analyse-position'
-    }, {
-      name: 'Dataset',
-      value: 'analyse-dataset'
-    }, {
-      name: 'Relative position',
-      value: 'analyse-relposition'
-    }], {
-      strokeWidth: 1,
-      stroke: 'rgba(102,102,102,0.5)',
-      symbolStrokeWidth: 0,
-      labelFill: '#000000',
-      btnTextStyle: {
-        fontSize: 14
-      }
+      width: 20,
+      height: 20
     });
+    contextMenu.appendAsList([
+      {
+        '<b>Group1</b>': {}
+      },
+      {
+        '&nbsp; &nbsp; Reset': {
+          handler: function () {
+              // console.log('Reset');
+          },
+          action: 'click'
+        }
+      },
+      {
+        '': {
+          style: {
+            backgroundColor: '#000000',
+            height: '1px',
+            margin: '1px',
+            padding: '0px',
+            opacity: '0.3'
 
-    selectMenu.attachEventHandlers({
-      textOnChange: function () {
-        // self.fromDate.blur();
-        // self.startDate = self.fromDate.getText();
-        // `.log(self.fromDate.getText());
-        if (selectMenu.value() === 'analyse-fixed-number') {
-          self.analyser(parseInt(window.prompt('Enter value')));
-        } else if (selectMenu.value() === 'analyse-functions') {
-          let str = window.prompt('Enter value');
-          self.analyser(str);
-        } else if (selectMenu.value() === 'analyse-position') {
-          self.analyser({position: 0});
-        } else if (selectMenu.value() === 'analyse-dataset') {
-          self.analyser({reldatasetposition: -1});
-        } else if (selectMenu.value() === 'analyse-relposition') {
-          self.analyser({relposition: -20});
+          }
+        }
+      },
+      {
+        '&nbsp; &nbsp; Update &#9654;': {
+          handler: [
+            {
+              '&nbsp;SubUpdate': {
+                handler: function () {
+
+                },
+                action: 'click'
+              }
+            },
+            {
+              '&nbsp;SubUpdate': {
+                handler: function () {
+
+                },
+                action: 'click'
+              }
+            }
+          ],
+          action: 'click'
+        }
+      },
+      {
+        '<b>Group2</b>': {}
+      },
+      {
+        '&nbsp; &nbsp; Reset': {
+          handler: function () {
+              // console.log('Reset');
+          },
+          action: 'click'
+        }
+      },
+      {
+        '': {
+          style: {
+            backgroundColor: '#000000',
+            height: '1px',
+            margin: '1px',
+            padding: '0px',
+            opacity: '0.3'
+
+          }
+        }
+      },
+      {
+        '&nbsp; &nbsp; Update': {
+          handler: [
+            {
+              '&nbsp;SubUpdate': {
+                handler: function () {
+
+                },
+                action: 'click'
+              }
+            },
+            {
+              '&nbsp;SubUpdate': {
+                handler: function () {
+
+                },
+                action: 'click'
+              }
+            }
+          ],
+          action: 'click'
         }
       }
+    ]);
+
+    this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
+      var x = posx,
+        y = posy,
+        r = rad * 2,
+        space = Math.round(r / 4),
+        halfWidth = Math.round(r / 2) * 0.7,
+        startX = (x - halfWidth),
+        endX = (x + halfWidth),
+        startY = (y + space),
+        endY = (y - space);
+      return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
     });
 
-    resetButton = new this.toolbox.Symbol('RESET', true, {
-      paper: this.graphics.paper,
-      chart: this.chart,
-      smartLabel: this.smartLabel,
-      chartContainer: this.graphics.container
-    }, {
-      fill: '#555',
-      labelFill: '#00ff00',
-      hoverFill: '#00ff00',
-      width: 30,
-      height: 20,
-      btnTextStyle: {
-        fontSize: 11
-      }
-    }).attachEventHandlers({
-      click: function () {
-          // apply(1);
-      }
-    });
+    // this.SymbolStore.register('textBoxIcon', function (x, y, rad, w, h, padX, padY) {
+    //   var x1 = x - w / 2 + padX / 2,
+    //     x2 = x + w / 2 - padX / 2,
+    //     y1 = y - h / 2 + padY / 2,
+    //     y2 = y + h / 2 - padY / 2;
 
-    this.SymbolStore.register('textBoxIcon', function (x, y, rad, w, h, padX, padY) {
-      var x1 = x - w / 2 + padX / 2,
-        x2 = x + w / 2 - padX / 2,
-        y1 = y - h / 2 + padY / 2,
-        y2 = y + h / 2 - padY / 2;
+    //   return ['M', x1, y1, 'L', x2, y1, 'L', x2, y2, 'L', x1, y2, 'Z'];
+    // });
 
-      return ['M', x1, y1, 'L', x2, y1, 'L', x2, y2, 'L', x1, y2, 'Z'];
-    });
-
-    group.addSymbol(selectMenu);
-    group.addSymbol(resetButton);
+    // group.addSymbol(selectMenu);
+    // group.addSymbol(resetButton);
+    group.addSymbol(contextMenu);
     toolbar.addComponent(group);
     return toolbar;
   };
@@ -256,7 +395,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       ln;
 
     for (i = 0, ln = this.toolbars.length; i < ln; i++) {
-      logicalSpace = this.toolbars[i].getLogicalSpace();
+      logicalSpace = this.toolbars[i].getLogicalSpace(availableWidth, availableHeight);
       width = Math.max(logicalSpace.width, width);
       height += logicalSpace.height;
       this.toolbars[i].width = logicalSpace.width;
@@ -298,7 +437,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
           },
           alignment: [{
             type: function (obj) {
-              return obj.left;
+              return obj.right;
             },
             dimensions: [function () {
               var parent = this.getParentComponentGroup();
