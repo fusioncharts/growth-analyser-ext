@@ -121,7 +121,15 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       self = this,
       resetButton,
       label,
-      contextMenu;
+      contextMenu,
+      contextArray = [],
+      i,
+      gaOptionsObj = {},
+      key,
+      obj = {},
+      popup,
+      paper = this.graphics.paper,
+      chartContainer = this.graphics.container;
 
     toolbar = new this.HorizontalToolbar({
       paper: this.graphics.paper,
@@ -146,6 +154,14 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       fill: '#fff',
       borderThickness: 0
     });
+
+    gaOptionsObj = {
+      'Fixed-Number': 'dialogBox',
+      'Functions': ['min', 'max', 'mean', 'median', 'sd'],
+      'Position': 'dialogBox',
+      'Dataset': ['Dataset ' + '1', 'Dataset ' + '2'],
+      'Relative-Position': 'dialogBox'
+    };
 
     // selectMenu = new this.toolbox.SelectSymbol({
     //   width: 100,
@@ -260,102 +276,152 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       chartContainer: this.graphics.container
     }, {
       width: 20,
-      height: 20
+      height: 20,
+      position: 'right'
     });
-    contextMenu.appendAsList([
-      {
-        '<b>Group1</b>': {}
-      },
-      {
-        '&nbsp; &nbsp; Reset': {
+
+    contextArray.push({
+      '<b>Growth Analyser</b>': {}
+    });
+    popup = function (callback) {
+      var box,
+        header,
+        style = {
+          fontSize: 10 + 'px',
+          lineHeight: 15 + 'px',
+          fontFamily: 'Lucida Grande',
+          stroke: '#000000',
+          'stroke-width': '2'
+        },
+        headerWidth = 180,
+        headerText,
+        cross,
+        inputField,
+        applyButton,
+        x = 500,
+        y = 100;
+
+      box = paper.html('div', {
+        fill: '#f1e8e8',
+        x: x,
+        y: y,
+        width: 180,
+        height: 80
+      }, style, chartContainer);
+
+      header = paper.html('div', {
+        fill: '#afa695',
+        width: headerWidth,
+        height: 20
+      }, style, box);
+
+      headerText = paper.html('div', {
+        fill: 'transparent',
+        width: headerWidth * 0.6,
+        height: 20,
+        x: 10,
+        y: 2
+      }, style, header);
+
+      headerText.attr({
+        text: 'Provide Specific Value'
+      });
+
+      cross = paper.html('div', {
+        fill: 'transparent',
+        width: 10,
+        height: 10,
+        x: 10 + (headerWidth * 0.6),
+        y: 2,
+        text: 'X',
+        cursor: 'pointer'
+      }, style, header);
+
+      cross.on('click', function () {
+        box.hide();
+      });
+
+      inputField = paper.html('input', {
+        width: 100,
+        height: 20,
+        x: 10,
+        y: 30
+      }, style, box);
+
+      applyButton = paper.html('div', {
+        width: 50,
+        height: 20,
+        x: 120,
+        y: 30,
+        fill: '#525252'
+      }, {
+        fontSize: 10 + 'px',
+        lineHeight: 15 + 'px',
+        fontFamily: 'Lucida Grande',
+        fill: '#ffffff',
+        cursor: 'pointer'
+      }, box);
+
+      applyButton.on('click', function () {
+        box.hide();
+        callback(inputField.val());
+      });
+
+      applyButton.attr({
+        text: 'APPLY'
+      });
+    };
+
+    for (let i in gaOptionsObj) {
+      let key,
+        obj = {},
+        subObj = {};
+      if (gaOptionsObj[i] === 'dialogBox') {
+        key = '&nbsp; &nbsp; ' + i;
+        obj[key] = {};
+        obj[key] = {
           handler: function () {
-              // console.log('Reset');
+            console.log(i);
+            let popupVal = popup(function (str) {
+              self.analyser(parseInt(str));
+            });
           },
           action: 'click'
-        }
-      },
-      {
-        '': {
-          style: {
-            backgroundColor: '#000000',
-            height: '1px',
-            margin: '1px',
-            padding: '0px',
-            opacity: '0.3'
-
-          }
-        }
-      },
-      {
-        '&nbsp; &nbsp; Update &#9654;': {
-          handler: [
-            {
-              '&nbsp;SubUpdate': {
-                handler: function () {
-
-                },
-                action: 'click'
-              }
-            },
-            {
-              '&nbsp;SubUpdate': {
-                handler: function () {
-
-                },
-                action: 'click'
-              }
-            }
-          ],
-          action: 'click'
-        }
-      },
-      {
-        '<b>Group2</b>': {}
-      },
-      {
-        '&nbsp; &nbsp; Reset': {
-          handler: function () {
-              // console.log('Reset');
-          },
-          action: 'click'
-        }
-      },
-      {
-        '': {
-          style: {
-            backgroundColor: '#000000',
-            height: '1px',
-            margin: '1px',
-            padding: '0px',
-            opacity: '0.3'
-
-          }
-        }
-      },
-      {
-        '&nbsp; &nbsp; Update': {
-          handler: [
-            {
-              '&nbsp;SubUpdate': {
-                handler: function () {
-
-                },
-                action: 'click'
-              }
-            },
-            {
-              '&nbsp;SubUpdate': {
-                handler: function () {
-
-                },
-                action: 'click'
-              }
-            }
-          ],
-          action: 'click'
+        };
+      } else {
+        key = '&#9666&nbsp; ' + i;
+        obj[key] = {};
+        obj[key].action = 'click';
+        obj[key].handler = [];
+        for (let j = 0; j < gaOptionsObj[i].length; j++) {
+          let subMenuName = gaOptionsObj[i][j];
+          subObj = {};
+          subObj['&nbsp;' + subMenuName] = {};
+          console.log(subMenuName);
+          subObj['&nbsp;' + subMenuName].handler = function () {
+            console.log(subMenuName, i, j);
+          };
+          subObj['&nbsp;' + subMenuName].action = 'click';
+          obj[key].handler.push(subObj);
         }
       }
-    ]);
+      console.log(contextArray);
+      contextArray.push(obj);
+      contextArray.push({
+        '': {
+          style: {
+            backgroundColor: '#000000',
+            height: '1px',
+            margin: '1px',
+            padding: '0px',
+            opacity: '0.3'
+
+          }
+        }
+      });
+    }
+
+    contextMenu.appendAsList(contextArray);
 
     this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
       var x = posx,
