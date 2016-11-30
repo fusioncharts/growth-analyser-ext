@@ -151,9 +151,9 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
 
     gaOptionsObj = {
       'Fixed-Number': 'dialogBox',
-      'Functions': ['min', 'max', 'mean', 'median', 'sd'],
+      'Functions': ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation'],
       'Position': 'dialogBox',
-      'Dataset': ['Dataset ' + '1', 'Dataset ' + '2'],
+      'Dataset': ['Previous Dataset', 'Next Dataset'],
       'Relative-Position': ['Next', 'Previous']
     };
 
@@ -298,16 +298,16 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
           console.log(subMenuName);
           subObj['&nbsp;' + subMenuName].handler = function () {
             console.log(subMenuName, i, j);
-            // ['min', 'max', 'mean', 'median', 'sd']
-            // ['Dataset ' + '1', 'Dataset ' + '2']
+            // ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation']
+            // ['Previous Dataset', 'Next Dataset']
             // ['Next', 'Previous']
-            if (subMenuName === 'min' ||
-              subMenuName === 'max' || subMenuName === 'mean' ||
-              subMenuName === 'median' || subMenuName === 'sd') {
+            if (subMenuName === 'Minimum' ||
+              subMenuName === 'Maximum' || subMenuName === 'Mean' ||
+              subMenuName === 'Median' || subMenuName === 'Standard Deviation') {
               self.analyser(subMenuName);
-            } else if (subMenuName === 'Dataset ' + '1') {
+            } else if (subMenuName === 'Previous Dataset') {
               self.analyser({reldatasetposition: -1});
-            } else if (subMenuName === 'Dataset ' + '2') {
+            } else if (subMenuName === 'Next Dataset') {
               self.analyser({reldatasetposition: 1});
             } else if (subMenuName === 'Next') {
               self.analyser({relposition: -1});

@@ -7,6 +7,7 @@ class GrowthAnalyser {
     this.Formulae = Formulae;
   }
   analyse (mode) {
+    debugger;
     let i = 0,
       ii = 0,
       j = 0,
@@ -16,7 +17,8 @@ class GrowthAnalyser {
       checkNum = 0,
       dataAr = this.data,
       nDataAr = [],
-      tempAr = [];
+      tempAr = [],
+      temp = 0;
     if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
       return dataAr.map((a) => {
         return a.map((b) => { return b; });
@@ -38,7 +40,12 @@ class GrowthAnalyser {
         checkNum = mode(dataAr[i]);
         for (j = 0, jj = dataAr[i].length; j < jj; ++j) {
           num = dataAr[i][j];
-          tempAr.push(100 * (num - checkNum) / checkNum);
+          if (checkNum === 0) {
+            temp = undefined;
+          } else {
+            temp = 100 * (num - checkNum) / checkNum;
+          }
+          tempAr.push(temp);
         }
         nDataAr.push(tempAr);
       }
@@ -101,25 +108,25 @@ class GrowthAnalyser {
 }
 
 var Formulae = {
-  min: (arr) => {
+  Minimum: (arr) => {
     return arr.reduce((a, b) => {
       return a > b ? b : a;
     });
   },
-  max: (arr) => {
+  Maximum: (arr) => {
     return arr.reduce((a, b) => {
       return a < b ? b : a;
     });
   },
-  mean: (arr) => {
+  Mean: (arr) => {
     return arr.reduce((a, b) => {
       return a + b;
     }) / arr.length;
   },
-  median: (arr) => {
+  Median: (arr) => {
     return arr.map((a) => a).sort((a, b) => { return a - b; })[arr.length / 2];
   },
-  sd: (values) => {
+  'Standard Deviation': (values) => {
     function average (data) {
       var sum, avg;
       sum = data.reduce(function (sum, value) {

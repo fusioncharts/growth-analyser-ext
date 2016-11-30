@@ -29,7 +29,7 @@ var tsChart;
            var arr = [];
 
            for (i = 0; i < len; i++) {
-               arr.push(Math.floor(Math.random() * 10));
+               arr.push(Math.floor(Math.random() * 100 - 50));
            }
            return arr;
        }
