@@ -117,16 +117,10 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
   LegendExt.prototype.createToolbar = function () {
     var toolbar,
       group,
-      selectMenu,
       self = this,
-      resetButton,
-      label,
       contextMenu,
       contextArray = [],
-      i,
       gaOptionsObj = {},
-      key,
-      obj = {},
       popup,
       paper = this.graphics.paper,
       chartContainer = this.graphics.container;
@@ -162,112 +156,6 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       'Dataset': ['Dataset ' + '1', 'Dataset ' + '2'],
       'Relative-Position': ['Next', 'Previous']
     };
-
-    // selectMenu = new this.toolbox.SelectSymbol({
-    //   width: 100,
-    //   height: 22
-    // }, {
-    //   paper: this.graphics.paper,
-    //   chart: this.chart,
-    //   smartLabel: this.smartLabel,
-    //   chartContainer: this.graphics.container
-    // }, [{
-    //   name: 'Fixed Number',
-    //   value: 'analyse-fixed-number'
-    // },
-    // {
-    //   name: 'Functions',
-    //   value: 'analyse-functions'
-    // }, {
-    //   name: 'Position',
-    //   value: 'analyse-position'
-    // }, {
-    //   name: 'Dataset',
-    //   value: 'analyse-dataset'
-    // }, {
-    //   name: 'Relative position',
-    //   value: 'analyse-relposition'
-    // }], {
-    //   strokeWidth: 1,
-    //   stroke: 'rgba(102,102,102,0.5)',
-    //   symbolStrokeWidth: 0,
-    //   labelFill: '#000000',
-    //   btnTextStyle: {
-    //     fontSize: 14
-    //   }
-    // });
-
-    // selectMenu.attachEventHandlers({
-    //   textOnChange: function () {
-    //     // self.fromDate.blur();
-    //     // self.startDate = self.fromDate.getText();
-    //     // `.log(self.fromDate.getText());
-    //     if (selectMenu.value() === 'analyse-fixed-number') {
-    //       self.analyser(parseInt(window.prompt('Enter value')));
-    //     } else if (selectMenu.value() === 'analyse-functions') {
-    //       let str = window.prompt('Enter value');
-    //       self.analyser(str);
-    //     } else if (selectMenu.value() === 'analyse-position') {
-    //       self.analyser({position: 0});
-    //     } else if (selectMenu.value() === 'analyse-dataset') {
-    //       self.analyser({reldatasetposition: -1});
-    //     } else if (selectMenu.value() === 'analyse-relposition') {
-    //       self.analyser({relposition: -20});
-    //     }
-    //   }
-    // });
-
-    // resetButton = new this.toolbox.Symbol('RESET', true, {
-    //   paper: this.graphics.paper,
-    //   chart: this.chart,
-    //   smartLabel: this.smartLabel,
-    //   chartContainer: this.graphics.container
-    // }, {
-    //   fill: '#555',
-    //   labelFill: '#00ff00',
-    //   hoverFill: '#00ff00',
-    //   width: 30,
-    //   height: 20,
-    //   btnTextStyle: {
-    //     fontSize: 11
-    //   }
-    // }).attachEventHandlers({
-    //   click: function () {
-    //       // apply(1);
-    //   }
-    // });
-
-    // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-    //   paper: this.graphics.paper,
-    //   chart: this.chart,
-    //   smartLabel: this.smartLabel,
-    //   chartContainer: this.graphics.container
-    // }, {
-    //   width: 15,
-    //   height: 15,
-    //   strokeWidth: 1,
-    //   stroke: '#7f7f7f',
-    //   radius: 2
-    // });
-
-    // contextMenu.appendAsList([
-    //   {
-    //     'Export In PNG': {
-    //       handler: function () {
-    //           // console.log('Reset');
-    //       },
-    //       action: 'click'
-    //     }
-    //   },
-    //   {
-    //     'Export In PDF': {
-    //       handler: function () {
-    //           // console.log('Update');
-    //       },
-    //       action: 'click'
-    //     }
-    //   }
-    // ]);
 
     contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
       paper: this.graphics.paper,
@@ -431,7 +319,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
           obj[key].handler.push(subObj);
         }
       }
-      console.log(contextArray);
+      // console.log(contextArray);
       contextArray.push(obj);
       contextArray.push({
         '': {
@@ -446,6 +334,16 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         }
       });
     }
+
+    contextArray.push({
+      '&nbsp; &nbsp; Reset': {
+        handler: function () {
+          // console.log('Reset');
+          self.analyser('reset');
+        },
+        action: 'click'
+      }
+    });
 
     contextMenu.appendAsList(contextArray);
 
@@ -462,17 +360,6 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
     });
 
-    // this.SymbolStore.register('textBoxIcon', function (x, y, rad, w, h, padX, padY) {
-    //   var x1 = x - w / 2 + padX / 2,
-    //     x2 = x + w / 2 - padX / 2,
-    //     y1 = y - h / 2 + padY / 2,
-    //     y2 = y + h / 2 - padY / 2;
-
-    //   return ['M', x1, y1, 'L', x2, y1, 'L', x2, y2, 'L', x1, y2, 'Z'];
-    // });
-
-    // group.addSymbol(selectMenu);
-    // group.addSymbol(resetButton);
     group.addSymbol(contextMenu);
     toolbar.addComponent(group);
     return toolbar;
