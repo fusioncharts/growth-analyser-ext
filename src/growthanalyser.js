@@ -7,7 +7,6 @@ class GrowthAnalyser {
     this.Formulae = Formulae;
   }
   analyse (mode) {
-    debugger;
     let i = 0,
       ii = 0,
       j = 0,

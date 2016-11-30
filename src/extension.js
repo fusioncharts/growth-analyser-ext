@@ -1,6 +1,5 @@
 FusionCharts.register('extension', ['private', 'legend-ext', function () {
   function LegendExt () {
-    window.ga = this;
     this.toolbox = FusionCharts.getComponent('api', 'toolbox');
     this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
     this.ComponentGroup = this.toolbox.ComponentGroup;
@@ -27,7 +26,19 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       i,
       idMap = ga.idMap || {},
       storeAr = ga.storeAr || [],
-      nStoreArr = [];
+      nStoreArr = [],
+      yAxis = canvas.composition.yAxis;
+    // Changing y Axis formattor
+    debugger;
+    if (mode === 'reset') {
+      yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
+        return val;
+      };
+    } else {
+      yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
+        return val + '%';
+      };
+    }
     // Declaration ends
     this.ga = ga;
     if (!ga.storeAr) {
@@ -72,6 +83,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       'spaceManagerInstance',
       'smartLabel',
       'chartInstance',
+      'canvasData',
       function (
             xAxis,
             yAxis,
@@ -85,7 +97,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
             globalReactiveModel,
             spaceManagerInstance,
             smartLabel,
-            chartInstance) {
+            chartInstance,
+            canvasData) {
         instance.xAxis = xAxis;
         instance.yAxis = yAxis;
         instance.graphics = graphics;
@@ -99,6 +112,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         instance.spaceManagerInstance = spaceManagerInstance;
         instance.smartLabel = smartLabel;
         instance.chartInstance = chartInstance;
+        instance.canvasData = canvasData;
       }
     ]);
     this.spaceManagerInstance = instance.spaceManagerInstance;
@@ -123,7 +137,11 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       gaOptionsObj = {},
       popup,
       paper = this.graphics.paper,
-      chartContainer = this.graphics.container;
+      chartContainer = this.graphics.container,
+      subCatStyle = {
+        'font-size': '12px',
+        'color': '#696969'
+      };
 
     toolbar = new this.HorizontalToolbar({
       paper: this.graphics.paper,
@@ -163,13 +181,21 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       smartLabel: this.smartLabel,
       chartContainer: this.graphics.container
     }, {
-      width: 20,
-      height: 20,
-      position: 'right'
+      width: 19,
+      height: 19,
+      position: 'right',
+      stroke: '#ced5d4',
+      symbolStroke: '#696969'
     });
 
     contextArray.push({
-      '<b>Growth Analyser</b>': {}
+      'Growth Analyser': {
+        style: {
+          'color': '#696969',
+          'font-family': 'MyriadPro',
+          'font-weight': 'bold'
+        }
+      }
     });
     popup = function (callback) {
       var box,
@@ -259,23 +285,33 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       applyButton.attr({
         text: 'Apply'
       });
-      inputField.element.setAttribute('type', 'number');
+      inputField.element.focus();
+      function inputFieldNumberHandler () {
+        inputField.element.value = inputField.element.value.replace(/[^\d.-]/g, '');
+      }
+      inputField.element.addEventListener('keyup', inputFieldNumberHandler);
       cross.element.style['position'] = 'relative';
       cross.element.style['backgroundColor'] = '#d2d2d2';
       cross.element.style['border'] = '2px solid #cbcbcb';
-      cross.element.style['padding'] = '0px';
-      cross.element.style['padding-left'] = '2px';
-      cross.element.style['padding-bottom'] = '3px';
-      cross.element.style['color'] = '#929292';
+      cross.element.style['padding'] = '0px 0px 3.5px 2px';
+      cross.element.style['color'] = '#8c8c8c';
       cross.element.style['margin'] = '1px 2px';
       cross.element.style['float'] = 'right';
-      inputField.element.style['margin-top'] = '8px';
-      applyButton.element.style['margin-top'] = '8px';
-      box.element.style['border'] = '1px solid #dedede';
-      header.element.style['border'] = '1px solid #dedede';
-      applyButton.element.style['text-align'] = 'center';
-      applyButton.element.style['font-size'] = '11px';
-      applyButton.element.style['padding-top'] = '2px';
+      inputField.element.style['marginTop'] = '8px';
+      inputField.element.style['border'] = '2px solid #dadbda';
+      applyButton.element.style['marginTop'] = '8px';
+      box.element.style['border'] = '1px solid #d4d2d3';
+      header.element.style['border'] = '1px solid #d4d2d3';
+      header.element.style['width'] = '179px';
+      headerText.element.style['fontSize'] = '11.5px';
+      headerText.element.style['marginTop'] = '0.5px';
+      headerText.element.style['color'] = '#676767';
+      header.element.style['fontFamily'] = 'MyriadPro';
+      applyButton.element.style['textAlign'] = 'center';
+      applyButton.element.style['fontSize'] = '11px';
+      applyButton.element.style['paddingTop'] = '3px';
+      applyButton.element.style['borderRadius'] = '3px';
+      applyButton.element.style['color'] = '#e4e4e4';
     };
 
     for (let i in gaOptionsObj) {
@@ -286,8 +322,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         key = '&nbsp; &nbsp; ' + i;
         obj[key] = {};
         obj[key] = {
+          style: subCatStyle,
           handler: function () {
-            console.log(i);
             // let popupVal = popup(function (str) {
             //   self.analyser(parseInt(str));
             // });
@@ -308,14 +344,13 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         key = '&#9666&nbsp; ' + i;
         obj[key] = {};
         obj[key].action = 'click';
+        obj[key].style = subCatStyle;
         obj[key].handler = [];
         for (let j = 0; j < gaOptionsObj[i].length; j++) {
           let subMenuName = gaOptionsObj[i][j];
           subObj = {};
           subObj['&nbsp;' + subMenuName] = {};
-          console.log(subMenuName);
           subObj['&nbsp;' + subMenuName].handler = function () {
-            console.log(subMenuName, i, j);
             // ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation']
             // ['Previous Dataset', 'Next Dataset']
             // ['Next', 'Previous']
@@ -334,20 +369,30 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
             }
           };
           subObj['&nbsp;' + subMenuName].action = 'click';
+          subObj['&nbsp;' + subMenuName].style = subCatStyle;
           obj[key].handler.push(subObj);
+          if (j !== gaOptionsObj[i].length - 1) {
+            obj[key].handler.push({
+              '': {
+                style: {
+                  backgroundColor: '#d5d2d2',
+                  height: '1px',
+                  margin: '1px',
+                  padding: '0px'
+                }
+              }
+            });
+          }
         }
       }
-      // console.log(contextArray);
       contextArray.push(obj);
       contextArray.push({
         '': {
           style: {
-            backgroundColor: '#000000',
+            backgroundColor: '#d5d2d2',
             height: '1px',
             margin: '1px',
-            padding: '0px',
-            opacity: '0.3'
-
+            padding: '0px'
           }
         }
       });
@@ -356,10 +401,10 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     contextArray.push({
       '&nbsp; &nbsp; Reset': {
         handler: function () {
-          // console.log('Reset');
           self.analyser('reset');
         },
-        action: 'click'
+        action: 'click',
+        style: subCatStyle
       }
     });
 
