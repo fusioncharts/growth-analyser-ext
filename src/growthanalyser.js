@@ -17,7 +17,11 @@ class GrowthAnalyser {
       dataAr = this.data,
       nDataAr = [],
       tempAr = [];
-    if (!isNaN(mode)) { // Handling a number
+    if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
+      return dataAr.map((a) => {
+        return a.map((b) => { return b; });
+      });
+    } else if (!isNaN(mode)) { // Handling a number
       checkNum = +mode;
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
