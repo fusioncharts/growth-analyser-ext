@@ -160,7 +160,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       'Functions': ['min', 'max', 'mean', 'median', 'sd'],
       'Position': 'dialogBox',
       'Dataset': ['Dataset ' + '1', 'Dataset ' + '2'],
-      'Relative-Position': 'dialogBox'
+      'Relative-Position': ['Next', 'Previous']
     };
 
     // selectMenu = new this.toolbox.SelectSymbol({
@@ -382,9 +382,19 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         obj[key] = {
           handler: function () {
             console.log(i);
-            let popupVal = popup(function (str) {
-              self.analyser(parseInt(str));
-            });
+            // let popupVal = popup(function (str) {
+            //   self.analyser(parseInt(str));
+            // });
+            if (i === 'Fixed-Number') {
+              // self.analyser(parseInt(window.prompt('Enter value')));
+              let popupVal = popup(function (str) {
+                self.analyser(parseInt(str));
+              });
+            } else if (i === 'Position') {
+              let popupVal = popup(function (str) {
+                self.analyser({position: str});
+              });
+            }
           },
           action: 'click'
         };
@@ -400,6 +410,22 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
           console.log(subMenuName);
           subObj['&nbsp;' + subMenuName].handler = function () {
             console.log(subMenuName, i, j);
+            // ['min', 'max', 'mean', 'median', 'sd']
+            // ['Dataset ' + '1', 'Dataset ' + '2']
+            // ['Next', 'Previous']
+            if (subMenuName === 'min' ||
+              subMenuName === 'max' || subMenuName === 'mean' ||
+              subMenuName === 'median' || subMenuName === 'sd') {
+              self.analyser(subMenuName);
+            } else if (subMenuName === 'Dataset ' + '1') {
+              self.analyser({reldatasetposition: -1});
+            } else if (subMenuName === 'Dataset ' + '2') {
+              self.analyser({reldatasetposition: 1});
+            } else if (subMenuName === 'Next') {
+              self.analyser({relposition: -1});
+            } else if (subMenuName === 'Previous') {
+              self.analyser({relposition: 1});
+            }
           };
           subObj['&nbsp;' + subMenuName].action = 'click';
           obj[key].handler.push(subObj);
