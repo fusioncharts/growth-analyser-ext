@@ -178,7 +178,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
           fontSize: 10 + 'px',
           lineHeight: 15 + 'px',
           fontFamily: 'Lucida Grande',
-          stroke: '#000000',
+          stroke: '#676767',
           'stroke-width': '2'
         },
         headerWidth = 180,
@@ -190,15 +190,15 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         y = 100;
 
       box = paper.html('div', {
-        fill: '#f1e8e8',
-        x: x,
-        y: y,
+        fill: '#f7f7f7',
+        x: x - 200,
+        y: y + 100,
         width: 180,
         height: 80
       }, style, chartContainer);
 
       header = paper.html('div', {
-        fill: '#afa695',
+        fill: '#e8e8e8',
         width: headerWidth,
         height: 20
       }, style, box);
@@ -219,8 +219,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         fill: 'transparent',
         width: 10,
         height: 10,
-        x: 10 + (headerWidth * 0.6),
-        y: 2,
+        position: 'relative',
+        float: 'right',
         text: 'X',
         cursor: 'pointer'
       }, style, header);
@@ -241,12 +241,14 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         height: 20,
         x: 120,
         y: 30,
-        fill: '#525252'
+        fill: '#555555'
       }, {
         fontSize: 10 + 'px',
         lineHeight: 15 + 'px',
         fontFamily: 'Lucida Grande',
-        fill: '#ffffff',
+        fill: '#eaeaea',
+        color: '#eaeaea',
+        stroke: '#eaeaea',
         cursor: 'pointer'
       }, box);
 
@@ -254,10 +256,25 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
         box.hide();
         callback(inputField.val());
       });
-
       applyButton.attr({
-        text: 'APPLY'
+        text: 'Apply'
       });
+      cross.element.style['position'] = 'relative';
+      cross.element.style['backgroundColor'] = '#d2d2d2';
+      cross.element.style['border'] = '2px solid #cbcbcb';
+      cross.element.style['padding'] = '0px';
+      cross.element.style['padding-left'] = '2px';
+      cross.element.style['padding-bottom'] = '3px';
+      cross.element.style['color'] = '#929292';
+      cross.element.style['margin'] = '1px 2px';
+      cross.element.style['float'] = 'right';
+      inputField.element.style['margin-top'] = '8px';
+      applyButton.element.style['margin-top'] = '8px';
+      box.element.style['border'] = '1px solid #dedede';
+      header.element.style['border'] = '1px solid #dedede';
+      applyButton.element.style['text-align'] = 'center';
+      applyButton.element.style['font-size'] = '11px';
+      applyButton.element.style['padding-top'] = '2px';
     };
 
     for (let i in gaOptionsObj) {
