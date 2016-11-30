@@ -259,6 +259,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       applyButton.attr({
         text: 'Apply'
       });
+      inputField.element.setAttribute('type', 'number');
       cross.element.style['position'] = 'relative';
       cross.element.style['backgroundColor'] = '#d2d2d2';
       cross.element.style['border'] = '2px solid #cbcbcb';
