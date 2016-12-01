@@ -6,6 +6,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
     this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
     this.ComponentGroup = this.toolbox.ComponentGroup;
     this.SymbolStore = this.toolbox.SymbolStore;
+    window.a = this;
   }
   GrowthAnalyserExt.prototype.constructor = GrowthAnalyserExt;
 
@@ -142,12 +143,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       subCatStyle = {
         'font-size': '12px',
         'color': '#696969',
-        'fontFamily': 'Myriad Pro'
+        'font-family': '"Lucida Grande", Sans-serif'
       },
       catStyle = {
         'font-size': '13px',
         'color': '#696969',
-        'font-family': 'Myriad Pro Semibold'
+        'font-family': '"Lucida Grande", Sans-serif',
+        'fontWeight': 'bold'
       };
 
     toolbar = new this.HorizontalToolbar({
@@ -175,11 +177,19 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
     });
 
     gaOptionsObj = {
-      'Fixed-Number': 'dialogBox',
-      'Functions': ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation'],
-      'Position': ['First', 'Mid', 'Last', 'Custom Position'],
-      'Dataset': ['Previous Dataset', 'Next Dataset'],
-      'Relative-Position': ['Next', 'Previous']
+      'First Index': {position: 0},
+      'Previous Index': {relposition: -1},
+      'Specific Value': {
+        'submenu': true,
+        'Minimum': 'Minimum',
+        'Maximum': 'Maximum',
+        'Mean': 'Mean',
+        'Median': 'Median',
+        'Standard Deviation': 'Standard Deviation',
+        'Custom Value...': function () {
+          popup((val) => self.analyser(val));
+        }
+      }
     };
 
     contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
@@ -191,10 +201,10 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       width: 24,
       height: 24,
       position: 'right',
-      stroke: '#ced5d4',
+      stroke: '#f1f1f1',
       strokeWidth: '1',
       radius: '1',
-      symbolStroke: '#696969',
+      symbolStroke: '#bdbdbd',
       symbolStrokeWidth: '2'
     });
 
@@ -209,7 +219,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
         style = {
           fontSize: 10 + 'px',
           lineHeight: 15 + 'px',
-          fontFamily: 'Lucida Grande',
+          'font-family': '"Lucida Grande", Sans-serif',
           stroke: '#676767',
           'stroke-width': '2'
         },
@@ -218,13 +228,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
         cross,
         inputField,
         applyButton,
-        x = 500,
-        y = 100;
+        x = (self.chart.width * 0.47) - 90,
+        y = self.chart.height / 2 - 40;
 
       box = paper.html('div', {
         fill: '#f7f7f7',
-        x: x - 200,
-        y: y + 100,
+        x: x,
+        y: y,
         width: 180,
         height: 80
       }, style, chartContainer);
@@ -244,7 +254,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       }, style, header);
 
       headerText.attr({
-        text: 'Provide Specific Value'
+        text: 'Provide value'
       });
 
       cross = paper.html('div', {
@@ -277,7 +287,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       }, {
         fontSize: 10 + 'px',
         lineHeight: 15 + 'px',
-        fontFamily: 'Lucida Grande',
+        'font-family': '"Lucida Grande", Sans-serif',
         fill: '#eaeaea',
         color: '#eaeaea',
         stroke: '#eaeaea',
@@ -312,7 +322,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       headerText.element.style['fontSize'] = '11.5px';
       headerText.element.style['marginTop'] = '0.5px';
       headerText.element.style['color'] = '#676767';
-      header.element.style['fontFamily'] = 'Myriad pro Semibold';
+      header.element.style['font-family'] = '"Lucida Grande", Sans-serif';
       applyButton.element.style['textAlign'] = 'center';
       applyButton.element.style['fontSize'] = '11px';
       applyButton.element.style['paddingTop'] = '3px';
@@ -324,25 +334,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       let key,
         obj = {},
         subObj = {};
-      if (gaOptionsObj[i] === 'dialogBox') {
+      if (!gaOptionsObj[i].submenu) {
         key = '&nbsp; &nbsp; ' + i;
         obj[key] = {};
         obj[key] = {
           style: subCatStyle,
           handler: function () {
-            // let popupVal = popup(function (str) {
-            //   self.analyser(parseInt(str));
-            // });
-            if (i === 'Fixed-Number') {
-              // self.analyser(parseInt(window.prompt('Enter value')));
-              let popupVal = popup(function (str) {
-                self.analyser(parseInt(str));
-              });
-            } else if (i === 'Position') {
-              let popupVal = popup(function (str) {
-                self.analyser({position: str});
-              });
-            }
+            self.analyser(gaOptionsObj[i]);
           },
           action: 'click'
         };
@@ -352,36 +350,19 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
         obj[key].action = 'click';
         obj[key].style = subCatStyle;
         obj[key].handler = [];
-        for (let j = 0; j < gaOptionsObj[i].length; j++) {
-          let subMenuName = gaOptionsObj[i][j];
+        for (let j in gaOptionsObj[i]) {
+          let subMenuName = j,
+            subMenuValue = gaOptionsObj[i][j];
+          if (j === 'submenu') {
+            continue;
+          }
           subObj = {};
           subObj['&nbsp;' + subMenuName] = {};
           subObj['&nbsp;' + subMenuName].handler = function () {
-            // ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation']
-            // ['Previous Dataset', 'Next Dataset']
-            // ['Next', 'Previous']
-            if (subMenuName === 'Minimum' ||
-              subMenuName === 'Maximum' || subMenuName === 'Mean' ||
-              subMenuName === 'Median' || subMenuName === 'Standard Deviation') {
-              self.analyser(subMenuName);
-            } else if (subMenuName === 'Previous Dataset') {
-              self.analyser({reldatasetposition: -1});
-            } else if (subMenuName === 'Next Dataset') {
-              self.analyser({reldatasetposition: 1});
-            } else if (subMenuName === 'Next') {
-              self.analyser({relposition: -1});
-            } else if (subMenuName === 'Previous') {
-              self.analyser({relposition: 1});
-            } else if (subMenuName === 'First') {
-              self.analyser({position: 0});
-            } else if (subMenuName === 'Mid') {
-              self.analyser({position: 'mid'});
-            } else if (subMenuName === 'Last') {
-              self.analyser({position: 'last'});
-            } else if (subMenuName === 'Custom Position') {
-              popup(function (str) {
-                self.analyser({position: parseInt(str)});
-              });
+            if (typeof subMenuValue === 'function') {
+              subMenuValue();
+            } else {
+              self.analyser(subMenuValue);
             }
           };
           subObj['&nbsp;' + subMenuName].action = 'click';
