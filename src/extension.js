@@ -31,7 +31,6 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       nStoreArr = [],
       yAxis = canvas.composition.yAxis;
     // Changing y Axis formattor
-    debugger;
     if (mode === 'reset') {
       yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
         return val;
@@ -142,7 +141,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       chartContainer = this.graphics.container,
       subCatStyle = {
         'font-size': '12px',
-        'color': '#696969'
+        'color': '#696969',
+        'fontFamily': 'Myriad Pro Semibold'
       };
 
     toolbar = new this.HorizontalToolbar({
@@ -194,8 +194,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       'Growth Analyser': {
         style: {
           'color': '#696969',
-          'font-family': 'MyriadPro',
-          'font-weight': 'bold'
+          'font-family': 'Myriad pro Semibold'
         }
       }
     });
@@ -308,7 +307,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       headerText.element.style['fontSize'] = '11.5px';
       headerText.element.style['marginTop'] = '0.5px';
       headerText.element.style['color'] = '#676767';
-      header.element.style['fontFamily'] = 'MyriadPro';
+      header.element.style['fontFamily'] = 'Myriad pro Semibold';
       applyButton.element.style['textAlign'] = 'center';
       applyButton.element.style['fontSize'] = '11px';
       applyButton.element.style['paddingTop'] = '3px';
