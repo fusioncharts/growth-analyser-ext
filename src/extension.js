@@ -142,7 +142,12 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       subCatStyle = {
         'font-size': '12px',
         'color': '#696969',
-        'fontFamily': 'Myriad Pro Semibold'
+        'fontFamily': 'Myriad Pro'
+      },
+      catStyle = {
+        'font-size': '13px',
+        'color': '#696969',
+        'font-family': 'Myriad Pro Semibold'
       };
 
     toolbar = new this.HorizontalToolbar({
@@ -187,15 +192,15 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       height: 24,
       position: 'right',
       stroke: '#ced5d4',
-      symbolStroke: '#696969'
+      strokeWidth: '1',
+      radius: '1',
+      symbolStroke: '#696969',
+      symbolStrokeWidth: '2'
     });
 
     contextArray.push({
       'Growth Analyser': {
-        style: {
-          'color': '#696969',
-          'font-family': 'Myriad pro Semibold'
-        }
+        style: catStyle
       }
     });
     popup = function (callback) {
@@ -400,7 +405,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     }
 
     contextArray.push({
-      '&nbsp; &nbsp; Reset': {
+      '&nbsp; &nbsp; Reset View': {
         handler: function () {
           self.analyser('reset');
         },
