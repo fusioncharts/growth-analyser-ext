@@ -17,7 +17,9 @@ class GrowthAnalyser {
       dataAr = this.data,
       nDataAr = [],
       tempAr = [],
-      temp = 0;
+      temp = 0,
+      floor = Math.floor,
+      round = Math.round;
     if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
       return dataAr.map((a) => {
         return a.map((b) => { return b; });
@@ -104,6 +106,15 @@ class GrowthAnalyser {
         if (!Number.isFinite(nDataAr[i][j])) {
           nDataAr[i][j] = null;
         }
+      }
+    }
+    var roundToTwo = (num) => {
+      return +(Math.round(num + 'e+2') + 'e-2');
+    };
+    // Rounding values
+    for (i = 0, ii = nDataAr.length; i < ii; ++i) {
+      for (j = 0, jj = nDataAr[i].length; j < jj; ++j) {
+        nDataAr[i][j] = roundToTwo(nDataAr[i][j]);
       }
     }
     return nDataAr;
