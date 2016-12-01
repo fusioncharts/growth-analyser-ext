@@ -34,15 +34,8 @@ gulp.task('lint', () =>
 );
 
 gulp.task('test', ['lint'], () =>
-  gulp.src(PATH.allSrcJs)
-    .pipe(istanbul())
-    .pipe(istanbul.hookRequire())
-    .on('finish', function () {
-      gulp.src(PATH.allTests)
-        .pipe(mocha())
-        .pipe(istanbul.writeReports())
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
-    })
+  gulp.src(PATH.allTests)
+    .pipe(mocha())
 );
 
 gulp.task('docs', ['test'], () => {
