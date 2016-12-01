@@ -1,3 +1,5 @@
+const GrowthAnalyser = require('./growthanalyser');
+
 FusionCharts.register('extension', ['private', 'legend-ext', function () {
   function LegendExt () {
     this.toolbox = FusionCharts.getComponent('api', 'toolbox');

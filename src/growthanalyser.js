@@ -152,3 +152,5 @@ var Formulae = {
     return stdDev;
   }
 };
+
+module.exports = GrowthAnalyser;
