@@ -1,15 +1,15 @@
 const GrowthAnalyser = require('./growthanalyser');
 
-FusionCharts.register('extension', ['private', 'legend-ext', function () {
-  function LegendExt () {
+FusionCharts.register('extension', ['private', 'growth-analyser-ext', function () {
+  function GrowthAnalyserExt () {
     this.toolbox = FusionCharts.getComponent('api', 'toolbox');
     this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
     this.ComponentGroup = this.toolbox.ComponentGroup;
     this.SymbolStore = this.toolbox.SymbolStore;
   }
-  LegendExt.prototype.constructor = LegendExt;
+  GrowthAnalyserExt.prototype.constructor = GrowthAnalyserExt;
 
-  LegendExt.prototype.renderChange = function () {
+  GrowthAnalyserExt.prototype.renderChange = function () {
     var chartInstance = this.tsObject.chartInstance,
       componentStore = chartInstance.apiInstance.getComponentStore(),
       i = 0;
@@ -18,7 +18,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     }
   };
 
-  LegendExt.prototype.analyser = function (mode) {
+  GrowthAnalyserExt.prototype.analyser = function (mode) {
     var ga = this.ga || {},
       store = this.tsObject.apiInstance.getComponentStore(),
       canvas = store.getCanvasByIndex(0),
@@ -68,7 +68,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     comp.impl.update();
   };
 
-  LegendExt.prototype.init = function (require) {
+  GrowthAnalyserExt.prototype.init = function (require) {
     var instance = this;
     require([
       'xAxis',
@@ -129,7 +129,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     return this;
   };
 
-  LegendExt.prototype.createToolbar = function () {
+  GrowthAnalyserExt.prototype.createToolbar = function () {
     var toolbar,
       group,
       self = this,
@@ -434,7 +434,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     return toolbar;
   };
 
-  LegendExt.prototype.getLogicalSpace = function (availableWidth, availableHeight) {
+  GrowthAnalyserExt.prototype.getLogicalSpace = function (availableWidth, availableHeight) {
     availableWidth /= 2;
     var logicalSpace,
       width = 0,
@@ -456,7 +456,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     };
   };
 
-  LegendExt.prototype.placeInCanvas = function () {
+  GrowthAnalyserExt.prototype.placeInCanvas = function () {
     var self = this;
     self.padding = 5;
     self.spaceManagerInstance.add([{
@@ -497,7 +497,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     }]);
   };
 
-  LegendExt.prototype.setDrawingConfiguration = function (x, y, width, height, group) {
+  GrowthAnalyserExt.prototype.setDrawingConfiguration = function (x, y, width, height, group) {
     var mes = this.measurement;
     mes.x = x;
     mes.y = y;
@@ -509,7 +509,7 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     return this;
   };
 
-  LegendExt.prototype.draw = function (x, y, width, height, group) {
+  GrowthAnalyserExt.prototype.draw = function (x, y, width, height, group) {
     var measurement = this.measurement,
       toolbars = this.toolbars,
       ln,
@@ -528,5 +528,5 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
     }
   };
 
-  FusionCharts.registerComponent('extensions', 'legendExt', LegendExt);
+  FusionCharts.registerComponent('extensions', 'GrowthAnalyserExt', GrowthAnalyserExt);
 }]);
