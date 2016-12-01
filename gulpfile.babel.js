@@ -90,7 +90,7 @@ _gulp2.default.task('clean:dist', ['test'], function () {
 });
 
 _gulp2.default.task('build-es5', ['clean:dist'], function () {
-  return _gulp2.default.src(PATH.allSrcJs).pipe((0, _gulpConcat2.default)('growth-analyser-es6.js')).pipe(_gulpSourcemaps2.default.init({ 'loadMaps': true })).pipe(_through2.default.obj(function (file, enc, cb) {
+  return _gulp2.default.src(PATH.allSrcJs).pipe((0, _gulpConcat2.default)('growth-analyser-es5.js')).pipe(_gulpSourcemaps2.default.init({ 'loadMaps': true })).pipe(_through2.default.obj(function (file, enc, cb) {
     var isSourceMap = /\.map$/.test(file.path);
     if (!isSourceMap) {
       this.push(file);
@@ -103,7 +103,7 @@ _gulp2.default.task('build-es5', ['clean:dist'], function () {
 });
 
 _gulp2.default.task('build', ['clean:dist'], function () {
-  return _gulp2.default.src(PATH.allSrcJs).pipe((0, _gulpConcat2.default)('growth-analyser-es6.min.js')).pipe((0, _gulpIife2.default)({
+  return _gulp2.default.src(PATH.allSrcJs).pipe((0, _gulpConcat2.default)('growth-analyser-es6.js')).pipe((0, _gulpIife2.default)({
     useStrict: true,
     prependSemicolon: false,
     params: ['window', 'document', 'undefined'],
@@ -125,11 +125,11 @@ _gulp2.default.task('build', ['clean:dist'], function () {
 });
 
 _gulp2.default.task('watch', function () {
-  return _gulp2.default.watch(PATH.allSrcJs, ['build']);
+  return _gulp2.default.watch(PATH.allSrcJs, ['build', 'build-es5']);
 });
 
 _gulp2.default.task('watch-tests', function () {
   return _gulp2.default.watch(PATH.allTests, ['test']);
 });
 
-_gulp2.default.task('default', ['watch-tests', 'watch', 'build']);
+_gulp2.default.task('default', ['watch-tests', 'watch', 'build', 'build-es5']);
