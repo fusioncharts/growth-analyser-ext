@@ -63,13 +63,17 @@ class GrowthAnalyser {
         }
         nDataAr.push(tempAr);
       }
-    } else if (!isNaN(mode.position)) {
+    } else if (!isNaN(mode.position) || typeof mode.position === 'string') {
       mode = mode.position;
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
         for (j = 0, jj = dataAr[i].length; j < jj; ++j) {
           num = dataAr[i][j];
-          if (mode >= 0 && mode < jj) {
+          if (mode === 'last') {
+            checkNum = dataAr[i][jj - 1];
+          } else if (mode === 'mid') {
+            checkNum = dataAr[i][jj / 2];
+          } else if (mode >= 0 && mode < jj) {
             checkNum = dataAr[i][mode];
           } else {
             checkNum = num;

@@ -29,7 +29,7 @@ var tsChart;
            var arr = [];
 
            for (i = 0; i < len; i++) {
-               arr.push(Math.floor(Math.random() * 100 - 50));
+               arr.push(Math.floor(Math.random() * 10));
            }
            return arr;
        }
@@ -58,8 +58,8 @@ var tsChart;
                 type: 'timeseries',
                 plottype: 'line',
                 renderAt: 'chart-container',
-                width: '900',
-                height: '550',
+                width: '1300',
+                height: '650',
                 dataFormat: 'json',
                 dataSource: {
                     chart: 

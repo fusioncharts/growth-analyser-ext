@@ -177,7 +177,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
     gaOptionsObj = {
       'Fixed-Number': 'dialogBox',
       'Functions': ['Minimum', 'Maximum', 'Mean', 'Median', 'Standard Deviation'],
-      'Position': 'dialogBox',
+      'Position': ['First', 'Mid', 'Last', 'Custom Position'],
       'Dataset': ['Previous Dataset', 'Next Dataset'],
       'Relative-Position': ['Next', 'Previous']
     };
@@ -372,6 +372,16 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
               self.analyser({relposition: -1});
             } else if (subMenuName === 'Previous') {
               self.analyser({relposition: 1});
+            } else if (subMenuName === 'First') {
+              self.analyser({position: 0});
+            } else if (subMenuName === 'Mid') {
+              self.analyser({position: 'mid'});
+            } else if (subMenuName === 'Last') {
+              self.analyser({position: 'last'});
+            } else if (subMenuName === 'Custom Position') {
+              popup(function (str) {
+                self.analyser({position: parseInt(str)});
+              });
             }
           };
           subObj['&nbsp;' + subMenuName].action = 'click';
