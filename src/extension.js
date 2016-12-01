@@ -183,8 +183,8 @@ FusionCharts.register('extension', ['private', 'legend-ext', function () {
       smartLabel: this.smartLabel,
       chartContainer: this.graphics.container
     }, {
-      width: 30,
-      height: 30,
+      width: 24,
+      height: 24,
       position: 'right',
       stroke: '#ced5d4',
       symbolStroke: '#696969'
