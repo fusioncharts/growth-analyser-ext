@@ -14,6 +14,8 @@ import prettydiff from 'gulp-prettydiff';
 import sourcemaps from 'gulp-sourcemaps';
 import webpackEs5Config from './webpack-es5.config.babel.js';
 import webpackEs6Config from './webpack-es6.config.babel.js';
+import webpackEs5ConfigSource from './webpack-es5.config.source.babel.js';
+import webpackEs6ConfigSource from './webpack-es6.config.source.babel.js';
 
 const PATH = {
   allSrcJs: 'src/**/*.js',
@@ -52,6 +54,9 @@ gulp.task('docs', ['test'], () => {
 gulp.task('build-es5', ['docs'], () =>
   gulp.src(PATH.clientEntryPoint)
   .pipe(webpack(webpackEs5Config))
+  .pipe(gulp.dest('dist')),
+  gulp.src(PATH.clientEntryPoint)
+  .pipe(webpack(webpackEs5ConfigSource))
   .pipe(gulp.dest('dist'))
 );
 
@@ -59,19 +64,14 @@ gulp.task('build', ['build-es5'], () =>
   gulp.src(PATH.clientEntryPoint)
   .pipe(named())
   .pipe(webpack(webpackEs6Config))
-  .pipe(sourcemaps.init({ 'loadMaps': true }))
-  .pipe(through.obj(function (file, enc, cb) {
-    var isSourceMap = /\.map$/.test(file.path);
-    if (!isSourceMap) {
-      this.push(file);
-    }
-    cb();
-  }))
-  .pipe(sourcemaps.write())
-  /*.pipe(prettydiff({
+  .pipe(prettydiff({
     'lang': 'javascript',
     'mode': 'minify'
-  }))*/
+  }))
+  .pipe(gulp.dest('dist')),
+  gulp.src(PATH.clientEntryPoint)
+  .pipe(named())
+  .pipe(webpack(webpackEs6ConfigSource))
   .pipe(gulp.dest('dist'))
 );
 

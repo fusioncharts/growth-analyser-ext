@@ -2,7 +2,7 @@
 
 export default {
   output: {
-    filename: 'growth-analyser.min.js'
+    filename: 'growth-analyser.js'
   },
   resolve: {
     extensions: ['', '.js']

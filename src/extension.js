@@ -7,7 +7,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
       this.ComponentGroup = this.toolbox.ComponentGroup;
       this.SymbolStore = this.toolbox.SymbolStore;
-      window.a = this;
     }
 
     renderChange () {
@@ -119,7 +118,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
           instance.extData = extData;
         }
       ]);
-      //  console.log(instance.extData);
       this.spaceManagerInstance = instance.spaceManagerInstance;
       this.globalReactiveModel = instance.globalReactiveModel;
       this.tsObject = instance.chartInstance;
@@ -130,8 +128,24 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       this.toolbars = [];
       this.measurement = {};
       this.toolbars.push(this.createToolbar());
+      setTimeout(instance.growthOverMode.bind(instance), 50);
       return this;
     };
+
+    growthOverMode () {
+      let self = this,
+        growthOver = this.extData && this.extData.growthOver;
+      console.log(this.extData, growthOver);
+      if (!isNaN(growthOver)) {
+        self.analyser(growthOver);
+      } else if (growthOver === 'firstIndex') {
+        self.analyser({position: 0});
+      } else if (growthOver === 'prevIndex') {
+        self.analyser({relposition: -1});
+      } else {
+        self.analyser(growthOver);
+      }
+    }
 
     createToolbar () {
       var toolbar,
@@ -143,9 +157,10 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
         popup,
         paper = this.graphics.paper,
         chartContainer = this.graphics.container,
+        userStyle = self.extData && self.extData.style || {},
         subCatStyle = {
           'font-size': '12px',
-          'color': '#4b4b4b',
+          'color': '#696969',
           'font-family': '"Lucida Grande", Sans-serif'
         },
         catStyle = {
@@ -153,7 +168,21 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
           'color': '#4b4b4b',
           'font-family': '"Lucida Grande", Sans-serif',
           'fontWeight': 'bold'
+        },
+        popupStyle = {
+          'fontSize': 10 + 'px',
+          'lineHeight': 15 + 'px',
+          'font-family': '"Lucida Grande", Sans-serif',
+          'stroke': '#676767',
+          'stroke-width': '2'
         };
+
+      userStyle.category = userStyle.category || {};
+      userStyle.subCategory = userStyle.subCategory || {};
+      userStyle.popup = userStyle.popup || {};
+      Object.assign(catStyle, userStyle.category);
+      Object.assign(subCatStyle, userStyle.subCategory);
+      Object.assign(popupStyle, userStyle.popup);
 
       toolbar = new this.HorizontalToolbar({
         paper: this.graphics.paper,
@@ -189,9 +218,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
           'Mean': 'Mean',
           'Median': 'Median',
           'Standard Deviation': 'Standard Deviation',
-          'Custom Value...': function () {
-            popup((val) => self.analyser(val));
-          }
+          'Custom Value...': () => { popup((val) => self.analyser(val)); }
         }
       };
 
@@ -219,13 +246,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       popup = function (callback) {
         var box,
           header,
-          style = {
-            fontSize: 10 + 'px',
-            lineHeight: 15 + 'px',
-            'font-family': '"Lucida Grande", Sans-serif',
-            stroke: '#676767',
-            'stroke-width': '2'
-          },
+          style = popupStyle,
           headerWidth = 180,
           headerText,
           cross,
@@ -415,7 +436,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
           style: subCatStyle
         }
       });
-
+      console.log(contextMenu);
+      window.ctx = contextMenu;
       contextMenu.appendAsList(contextArray);
 
       this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {

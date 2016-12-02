@@ -3,7 +3,7 @@ import webpack from 'webpack';
 
 export default {
   output: {
-    filename: 'growth-analyser-es5.min.js'
+    filename: 'growth-analyser-es5.js'
   },
   module: {
     loaders: [
@@ -16,8 +16,5 @@ export default {
   },
   resolve: {
     extensions: ['', '.js']
-  },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({ minimize: true })
-  ]
+  }
 };

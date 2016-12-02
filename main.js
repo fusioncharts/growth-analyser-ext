@@ -24,12 +24,43 @@ var tsChart;
            }
            return arr;
        }
+       function getRandomMS (len) {
+        var timeNow = +new Date - 1.5 * 365 * 24 * 60 * 60 * 1000,
+          arr = [],
+          i = 0,
+          per = 0,
+          incr = 47304000000 / len,
+          floor = Math.floor;
+
+        for(i = 0; i < len; ++i) {
+          per = i / len;
+          if (per < 0.25) {
+            timeNow += incr * 2;
+          } else if (per < 0.5) {
+            timeNow += incr * 1;
+          } else if (per < 0.75) {
+            timeNow += incr / 4;
+          } else if (per < 0.8) {
+            timeNow += incr / 8;
+          } else if (per < 0.85) {
+            timeNow += incr / 800000;
+          } else if (per < 0.9) {
+            timeNow += incr / 1200000;
+          } else {
+            timeNow += 10;
+          }
+          window.arr = arr;
+          arr.push(floor(timeNow))
+        }
+
+        return arr;
+       }
 
        function getRandomSeries (len) {
            var arr = [];
 
            for (i = 0; i < len; i++) {
-               arr.push(Math.floor(Math.random() * 10));
+               arr.push(Math.floor(Math.random() * 10) - 5);
            }
            return arr;
        }
@@ -54,7 +85,7 @@ var tsChart;
        }
        var data1;
         FusionCharts.ready(function () {
-            tsChart = new FusionCharts({
+            window.data = {
                 type: 'timeseries',
                 plottype: 'line',
                 renderAt: 'chart-container',
@@ -73,8 +104,7 @@ var tsChart;
                         ],
                         datasets: [{
                             category: {
-                                dateformat: "%e-%b-%Y",
-                                data: getRandomDates(200)
+                                data: getRandomMS(5000)
                             },
                             dataset: [
                                 {
@@ -85,14 +115,14 @@ var tsChart;
                                                 type: "column"
                                             },
                                             name: "Series 1",
-                                            data: getRandomSeries(200)
+                                            data: getRandomSeries(5000)
                                         },
                                         {
                                             plot: {
                                                 type: "line"
                                             },
                                             name: "Series 1",
-                                            data: getRandomSeries(200)
+                                            data: getRandomSeries(5000)
                                         }
                                         // {
                                         //     plot: {
@@ -128,10 +158,36 @@ var tsChart;
                         }]
 
                     },
-
+                    'extensions': {
+                      'growth-analyser-ext': {
+                        'growthOver': '67', // Minimum, Maximum, Mean, Median, Standard Deviation
+                                                   // prevIndex, firstIndex
+                        'style': {
+                          'category': {
+                            'font-size': '13px',
+                            'color': '#4b4b4b',
+                            'font-family': '"Lucida Grande", Sans-serif',
+                            'fontWeight': 'bold'
+                          },
+                          'subCategory': {
+                            'font-size': '12px',
+                            'color': '#4b4b4b',
+                            'font-family': '"Lucida Grande", Sans-serif'
+                          },
+                          'popup': {
+                            'fontSize': '10px',
+                            'lineHeight': '15px',
+                            'font-family': '"Lucida Grande", Sans-serif',
+                            'stroke': '#676767',
+                            'stroke-width': '2'
+                          }
+                        }
+                      }
+                    }
                  }
 
-            })
+            };
+            tsChart = new FusionCharts(window.data)
             .render();
 
         console.log(data1);

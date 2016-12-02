@@ -18,6 +18,11 @@ class GrowthAnalyser {
       nDataAr = [],
       tempAr = [],
       temp = 0;
+    if (mode === undefined) {
+      return this.data.map((a) => {
+        return a.map((b) => { return undefined; });
+      });
+    }
     if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
       return dataAr.map((a) => {
         return a.map((b) => { return b; });
@@ -34,6 +39,11 @@ class GrowthAnalyser {
       }
     } else if (typeof mode === 'string') {
       mode = this.Formulae[mode];
+      if (!mode) {
+        return this.data.map((a) => {
+          return a.map((b) => { return undefined; });
+        });
+      }
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
         checkNum = mode(dataAr[i]);
@@ -98,6 +108,10 @@ class GrowthAnalyser {
         }
         nDataAr.push(tempAr);
       }
+    } else {
+      return this.data.map((a) => {
+        return a.map((b) => { return undefined; });
+      });
     }
     for (i = 0, ii = nDataAr.length; i < ii; ++i) {
       for (j = 0, jj = nDataAr[i].length; j < jj; ++j) {
