@@ -17,9 +17,7 @@ class GrowthAnalyser {
       dataAr = this.data,
       nDataAr = [],
       tempAr = [],
-      temp = 0,
-      floor = Math.floor,
-      round = Math.round;
+      temp = 0;
     if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
       return dataAr.map((a) => {
         return a.map((b) => { return b; });
@@ -117,6 +115,12 @@ class GrowthAnalyser {
         nDataAr[i][j] = roundToTwo(nDataAr[i][j]);
       }
     }
+    for (i = nDataAr.length; i--;) {
+      for (j = nDataAr[i].length; j--;) {
+        temp = parseInt(nDataAr[i][j] * 100);
+        nDataAr[i][j] = temp / 100;
+      }
+    }
     return nDataAr;
   }
 }
@@ -169,3 +173,4 @@ var Formulae = {
 };
 
 module.exports = GrowthAnalyser;
+

@@ -58,8 +58,8 @@ var tsChart;
                 type: 'timeseries',
                 plottype: 'line',
                 renderAt: 'chart-container',
-                width: '900',
-                height: '550',
+                width: '1200',
+                height: '650',
                 dataFormat: 'json',
                 dataSource: {
                     chart: 
@@ -127,8 +127,9 @@ var tsChart;
                           }
                         }]
 
-                    }
-                }
+                    },
+
+                 }
 
             })
             .render();
