@@ -17,16 +17,24 @@ class GrowthAnalyser {
       dataAr = this.data,
       nDataAr = [],
       tempAr = [],
-      temp = 0;
+      temp = 0,
+      unchanged = {
+        changed: false,
+        value: this.data.map((a) => {
+          return a.map((b) => { return undefined; });
+        })
+      },
+      dataReset = {
+        changed: false,
+        value: this.data.map((a) => {
+          return a.map((b) => { return b; });
+        })
+      };
     if (mode === undefined) {
-      return this.data.map((a) => {
-        return a.map((b) => { return undefined; });
-      });
+      return dataReset;
     }
     if (typeof mode === 'string' && mode.toLowerCase() === 'reset') {
-      return dataAr.map((a) => {
-        return a.map((b) => { return b; });
-      });
+      return dataReset;
     } else if (!isNaN(mode)) { // Handling a number
       checkNum = +mode;
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
@@ -40,9 +48,7 @@ class GrowthAnalyser {
     } else if (typeof mode === 'string') {
       mode = this.Formulae[mode];
       if (!mode) {
-        return this.data.map((a) => {
-          return a.map((b) => { return undefined; });
-        });
+        return dataReset;
       }
       for (i = 0, ii = dataAr.length; i < ii; ++i) {
         tempAr = [];
@@ -109,33 +115,22 @@ class GrowthAnalyser {
         nDataAr.push(tempAr);
       }
     } else {
-      return this.data.map((a) => {
-        return a.map((b) => { return undefined; });
-      });
+      return dataReset;
     }
+    // Rounding and checking
     for (i = 0, ii = nDataAr.length; i < ii; ++i) {
       for (j = 0, jj = nDataAr[i].length; j < jj; ++j) {
         if (!Number.isFinite(nDataAr[i][j])) {
           nDataAr[i][j] = null;
         }
-      }
-    }
-    var roundToTwo = (num) => {
-      return +(Math.round(num + 'e+2') + 'e-2');
-    };
-    // Rounding values
-    for (i = 0, ii = nDataAr.length; i < ii; ++i) {
-      for (j = 0, jj = nDataAr[i].length; j < jj; ++j) {
-        nDataAr[i][j] = roundToTwo(nDataAr[i][j]);
-      }
-    }
-    for (i = nDataAr.length; i--;) {
-      for (j = nDataAr[i].length; j--;) {
         temp = parseInt(nDataAr[i][j] * 100);
         nDataAr[i][j] = temp / 100;
       }
     }
-    return nDataAr;
+    return {
+      changed: true,
+      value: nDataAr
+    };
   }
 }
 

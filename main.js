@@ -60,7 +60,7 @@ var tsChart;
            var arr = [];
 
            for (i = 0; i < len; i++) {
-               arr.push(Math.floor(Math.random() * 10) - 5);
+               arr.push(Math.floor(Math.random() * 150));
            }
            return arr;
        }
@@ -104,7 +104,7 @@ var tsChart;
                         ],
                         datasets: [{
                             category: {
-                                data: getRandomMS(5000)
+                                data: getRandomMS(50)
                             },
                             dataset: [
                                 {
@@ -115,14 +115,14 @@ var tsChart;
                                                 type: "column"
                                             },
                                             name: "Series 1",
-                                            data: getRandomSeries(5000)
+                                            data: getRandomSeries(50)
                                         },
                                         {
                                             plot: {
                                                 type: "line"
                                             },
                                             name: "Series 1",
-                                            data: getRandomSeries(5000)
+                                            data: getRandomSeries(50)
                                         }
                                         // {
                                         //     plot: {
@@ -156,11 +156,10 @@ var tsChart;
                             text: 'Sub-caption'
                           }
                         }]
-
                     },
                     'extensions': {
                       'growth-analyser': {
-                        'growthOver': '67', // Minimum, Maximum, Mean, Median, Standard Deviation
+                        'growthOver': 'Median', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
                         'style': {
                           'category': {

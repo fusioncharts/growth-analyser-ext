@@ -10,7 +10,9 @@
     },
     "rules": {
     	"one-var": ["error", "always"],
-    	"semi": ["error", "always"]
+        "no-debugger": ["warn"],
+        "semi": ["error", "always"],
+        "no-unused-vars": ["warn"]
     }
 }
         /*

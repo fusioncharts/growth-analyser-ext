@@ -29,16 +29,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         storeAr = ga.storeAr || [],
         nStoreArr = [],
         yAxis = canvas.composition.yAxis;
-      // Changing y Axis formattor
-      if (mode === 'reset') {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
-          return val;
-        };
-      } else {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
-          return val + '%';
-        };
-      }
       // Declaration ends
       this.ga = ga;
       if (!ga.storeAr) {
@@ -59,9 +49,20 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         }
       }
       nStoreArr = ga.gAnalyser.analyse(mode);
+      // Changing y Axis formattor
+      if (mode === 'reset' || !nStoreArr.changed) {
+        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
+          return val;
+        };
+      } else {
+        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
+          return val + '%';
+        };
+      }
+      // Update data
       ds.setDataBySeries(function (series) {
-        if (nStoreArr.length) {
-          series.setOriginalData(nStoreArr[idMap[series.getId()]]);
+        if (nStoreArr.value.length) {
+          series.setOriginalData(nStoreArr.value[idMap[series.getId()]]);
         }
       });
       comp.impl.update();
@@ -128,7 +129,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.toolbars = [];
       this.measurement = {};
       this.toolbars.push(this.createToolbar());
-      setTimeout(instance.growthOverMode.bind(instance), 50);
+      instance.growthOverMode();
       return this;
     };
 
