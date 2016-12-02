@@ -1,6 +1,6 @@
 const GrowthAnalyser = require('./growthanalyser');
 
-FusionCharts.register('extension', ['private', 'growth-analyser-ext', function () {
+FusionCharts.register('extension', ['private', 'growth-analyser', function () {
   class GrowthAnalyserExt {
     constructor () {
       this.toolbox = FusionCharts.getComponent('api', 'toolbox');
@@ -135,7 +135,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
     growthOverMode () {
       let self = this,
         growthOver = this.extData && this.extData.growthOver;
-      console.log(this.extData, growthOver);
       if (!isNaN(growthOver)) {
         self.analyser(growthOver);
       } else if (growthOver === 'firstIndex') {
@@ -436,8 +435,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
           style: subCatStyle
         }
       });
-      console.log(contextMenu);
-      window.ctx = contextMenu;
       contextMenu.appendAsList(contextArray);
 
       this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
@@ -552,5 +549,5 @@ FusionCharts.register('extension', ['private', 'growth-analyser-ext', function (
       }
     };
   };
-  FusionCharts.registerComponent('extensions', 'growth-analyser-ext', GrowthAnalyserExt);
+  FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
 }]);

@@ -53,7 +53,7 @@
 
 	const GrowthAnalyser = __webpack_require__(2);
 
-	FusionCharts.register('extension', ['private', 'growth-analyser-ext', function () {
+	FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 	  class GrowthAnalyserExt {
 	    constructor () {
 	      this.toolbox = FusionCharts.getComponent('api', 'toolbox');
@@ -605,7 +605,7 @@
 	      }
 	    };
 	  };
-	  FusionCharts.registerComponent('extensions', 'growth-analyser-ext', GrowthAnalyserExt);
+	  FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
 	}]);
 
 

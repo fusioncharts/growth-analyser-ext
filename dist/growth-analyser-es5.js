@@ -52,7 +52,7 @@
 
 	var GrowthAnalyser = __webpack_require__(1);
 
-	FusionCharts.register('extension', ['private', 'growth-analyser-ext', function () {
+	FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 	  var GrowthAnalyserExt = function () {
 	    function GrowthAnalyserExt() {
 	      _classCallCheck(this, GrowthAnalyserExt);
@@ -604,7 +604,7 @@
 	  }();
 
 	  ;
-	  FusionCharts.registerComponent('extensions', 'growth-analyser-ext', GrowthAnalyserExt);
+	  FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
 	}]);
 
 /***/ },

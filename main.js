@@ -159,7 +159,7 @@ var tsChart;
 
                     },
                     'extensions': {
-                      'growth-analyser-ext': {
+                      'growth-analyser': {
                         'growthOver': '67', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
                         'style': {
