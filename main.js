@@ -161,6 +161,10 @@ var tsChart;
                       'growth-analyser': {
                         'growthOver': 'Median', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
+                        'posWrtCanvas': 'top',
+                        'layout': 'inline',
+                        'alignment': 'right',
+                        'orientation': 'horizontal',
                         'style': {
                           'category': {
                             'font-size': '13px',

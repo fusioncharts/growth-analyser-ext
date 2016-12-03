@@ -532,7 +532,12 @@
 	    };
 
 	    placeInCanvas () {
-	      var self = this;
+	      var self = this,
+	        config = this.extData || {},
+	        posWrtCanvas = config.posWrtCanvas || 'top',
+	        layout = config.layout || 'inline',
+	        alignment = config.alignment || 'right',
+	        orientation = config.orientation || 'horizontal';
 	      self.padding = 5;
 	      self.spaceManagerInstance.add([{
 	        name: function () {
@@ -548,19 +553,19 @@
 	          return 2;
 	        },
 	        layout: function (obj) {
-	          return obj.inline;
+	          return obj[layout];
 	        },
 	        orientation: [{
 	          type: function (obj) {
-	            return obj.horizontal;
+	            return obj[orientation];
 	          },
 	          position: [{
 	            type: function (obj) {
-	              return obj.top;
+	              return obj[posWrtCanvas];
 	            },
 	            alignment: [{
 	              type: function (obj) {
-	                return obj.right;
+	                return obj[alignment];
 	              },
 	              dimensions: [function () {
 	                var parent = this.getParentComponentGroup();
