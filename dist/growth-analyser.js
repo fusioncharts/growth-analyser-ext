@@ -108,7 +108,6 @@
 	        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
 	          return val;
 	        };
-	        debugger;
 	        self.contextMenu && self.contextMenu.hideListItem('reset');
 	      } else {
 	        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
@@ -420,6 +419,29 @@
 	        applyButton.element.style['color'] = '#e4e4e4';
 	      };
 
+	      // Pusing reset Button
+	      contextArray.push({
+	        '&nbsp; &nbsp; Reset View': {
+	          id: 'reset',
+	          handler: function () {
+	            self.analyser('reset');
+	          },
+	          action: 'click',
+	          style: subCatStyle
+	        }
+	      });
+	      contextArray.push({
+	        '': {
+	          id: 'reset',
+	          style: {
+	            backgroundColor: '#d5d2d2',
+	            height: '1px',
+	            margin: '1px',
+	            padding: '0px'
+	          }
+	        }
+	      });
+
 	      for (let i in gaOptionsObj) {
 	        let key,
 	          obj = {},
@@ -473,27 +495,20 @@
 	          }
 	        }
 	        contextArray.push(obj);
-	        contextArray.push({
-	          '': {
-	            style: {
-	              backgroundColor: '#d5d2d2',
-	              height: '1px',
-	              margin: '1px',
-	              padding: '0px'
+	        if (i.indexOf('Specific') === -1) {
+	          contextArray.push({
+	            '': {
+	              style: {
+	                backgroundColor: '#d5d2d2',
+	                height: '1px',
+	                margin: '1px',
+	                padding: '0px'
+	              }
 	            }
-	          }
-	        });
+	          });
+	        }
 	      }
 
-	      contextArray.push({
-	        '&nbsp; &nbsp; Reset View': {
-	          handler: function () {
-	            self.analyser('reset');
-	          },
-	          action: 'click',
-	          style: subCatStyle
-	        }
-	      });
 	      contextMenu.appendAsList(contextArray);
 
 	      this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {

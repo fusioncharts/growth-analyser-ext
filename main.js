@@ -89,8 +89,8 @@ var tsChart;
                 type: 'timeseries',
                 plottype: 'line',
                 renderAt: 'chart-container',
-                width: '1200',
-                height: '650',
+                width: '800',
+                height: '450',
                 dataFormat: 'json',
                 dataSource: {
                     chart: 

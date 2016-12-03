@@ -7,6 +7,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
       this.ComponentGroup = this.toolbox.ComponentGroup;
       this.SymbolStore = this.toolbox.SymbolStore;
+      window.ext = this;
     }
 
     renderChange () {
@@ -55,14 +56,12 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
           return val;
         };
-        console.log(self.contextMenu, 1);
         self.contextMenu && self.contextMenu.hideListItem('reset');
       } else {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
           return val + '%';
         };
         self.contextMenu && self.contextMenu.showListItem('reset');
-        console.log(self.contextMenu, 2);
       }
       // Update data
       ds.setDataBySeries(function (series) {
@@ -143,12 +142,48 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         growthOver = this.extData && this.extData.growthOver;
       if (!isNaN(growthOver)) {
         self.analyser(growthOver);
+        self.highlight('Custom');
       } else if (growthOver === 'firstIndex') {
+        self.highlight('First');
         self.analyser({position: 0});
       } else if (growthOver === 'prevIndex') {
+        self.highlight('Previous');
         self.analyser({relposition: -1});
       } else {
+        self.highlight(growthOver);
         self.analyser(growthOver);
+      }
+    }
+
+    highlight (key) {
+      let contextMenu = this.contextMenu,
+        atomicLists = contextMenu && contextMenu.listContainerManager.container.atomicLists,
+        i = atomicLists.length,
+        j = 0,
+        list = {},
+        subList = {},
+        noneFound = true;
+      for (; i-- - 1;) {
+        list = atomicLists[i];
+        noneFound = true;
+        if (list.name.indexOf(key) + 1) {
+          list.node.style.fontWeight = 'bold';
+        } else {
+          list.node.style.fontWeight = '';
+        }
+        for (j = list.subConRef && list.subConRef.atomicLists.length || 0; j--;) {
+          subList = list.subConRef.atomicLists[j];
+          if (subList.name.indexOf(key) + 1) {
+            subList.node.style.fontWeight = 'bold';
+            list.node.style.fontWeight = 'bold';
+            noneFound = false;
+          } else {
+            subList.node.style.fontWeight = '';
+          }
+          if (noneFound) {
+            list.node.style.fontWeight = '';
+          }
+        }
       }
     }
 
@@ -223,7 +258,12 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           'Average': 'Mean',
           'Median': 'Median',
           'Standard Deviation': 'Standard Deviation',
-          'Custom Value...': () => { popup((val) => self.analyser(val)); }
+          'Custom Value...': () => {
+            popup((val) => {
+              self.analyser(val);
+              self.highlight('Custom');
+            });
+          }
         }
       };
 
@@ -374,6 +414,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           id: 'reset',
           handler: function () {
             self.analyser('reset');
+            self.highlight('reset');
           },
           action: 'click',
           style: subCatStyle
@@ -402,6 +443,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             style: subCatStyle,
             handler: function () {
               self.analyser(gaOptionsObj[i]);
+              self.highlight(key);
             },
             action: 'click'
           };
@@ -424,6 +466,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
                 subMenuValue();
               } else {
                 self.analyser(subMenuValue);
+                self.highlight('&nbsp;' + subMenuName);
               }
             };
             subObj['&nbsp;' + subMenuName].action = 'click';
