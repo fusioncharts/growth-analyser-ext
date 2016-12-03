@@ -241,10 +241,10 @@
 
 	        this.origAxisName = origAxisName;
 	        if (exists) {
-	          console.log(renameFn(origAxisName, mode));
+	          // console.log(renameFn(origAxisName, mode));
 	        } else {
-	          console.log(origAxisName);
-	        }
+	            // console.log(origAxisName);
+	          }
 	      }
 	    }, {
 	      key: 'preGrowthHook',

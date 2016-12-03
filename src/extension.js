@@ -142,7 +142,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.toolbars = [];
       this.measurement = {};
       this.toolbars.push(this.createToolbar());
-      instance.growthOverMode();
+      // instance.growthOverMode();
       return this;
     };
 
@@ -212,9 +212,9 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
       this.origAxisName = origAxisName;
       if (exists) {
-        console.log(renameFn(origAxisName, mode));
+        // console.log(renameFn(origAxisName, mode));
       } else {
-        console.log(origAxisName);
+        // console.log(origAxisName);
       }
     }
 
