@@ -239,7 +239,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       });
 
       contextArray.push({
-        'Show growth over': {
+        'Show Growth Over': {
           style: catStyle
         }
       });

@@ -271,7 +271,7 @@
 	        });
 
 	        contextArray.push({
-	          'Show growth over': {
+	          'Show Growth Over': {
 	            style: catStyle
 	          }
 	        });
