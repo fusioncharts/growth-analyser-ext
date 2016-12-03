@@ -46,6 +46,8 @@
 
 	'use strict';
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -57,23 +59,32 @@
 	    function GrowthAnalyserExt() {
 	      _classCallCheck(this, GrowthAnalyserExt);
 
+	      var self = this;
 	      this.toolbox = FusionCharts.getComponent('api', 'toolbox');
 	      this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
 	      this.ComponentGroup = this.toolbox.ComponentGroup;
 	      this.SymbolStore = this.toolbox.SymbolStore;
+	      this.analyserOptionsObject = {
+	        'First Index': { position: 0 },
+	        'Previous Index': { relposition: -1 },
+	        'Specific Value': {
+	          'submenu': true,
+	          'Minimum': 'Minimum',
+	          'Maximum': 'Maximum',
+	          'Average': 'Mean',
+	          'Median': 'Median',
+	          'Standard Deviation': 'Standard Deviation',
+	          'Custom Value...': function CustomValue(fn) {
+	            fn(function (val) {
+	              self.analyser(val);
+	              self.preGrowthHook('Custom');
+	            });
+	          }
+	        }
+	      };
 	    }
 
 	    _createClass(GrowthAnalyserExt, [{
-	      key: 'renderChange',
-	      value: function renderChange() {
-	        var chartInstance = this.tsObject.chartInstance,
-	            componentStore = chartInstance.apiInstance.getComponentStore(),
-	            i = 0;
-	        for (i = 0; componentStore.getCanvasByIndex(i); ++i) {
-	          componentStore.getCanvasByIndex(i).getComposition().PlotManager.plot();
-	        }
-	      }
-	    }, {
 	      key: 'analyser',
 	      value: function analyser(mode) {
 	        var self = this,
@@ -165,15 +176,113 @@
 	      key: 'growthOverMode',
 	      value: function growthOverMode() {
 	        var self = this,
-	            growthOver = this.extData && this.extData.growthOver;
+	            growthOver = this.extData && this.extData.growthOver,
+	            analyserOptionsObject = this.analyserOptionsObject,
+	            exists = false;
+
+	        function check(ob) {
+	          var key, value;
+	          for (key in ob) {
+	            value = ob[key];
+	            if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.submenu) {
+	              check(value);
+	            }
+	            if (key.indexOf(growthOver) + 1) {
+	              exists = true;
+	            }
+	          }
+	        }
+	        check(analyserOptionsObject);
+	        if (!exists) {
+	          self.contextMenu && self.contextMenu.hideListItem('reset');
+	          return;
+	        }
+
 	        if (!isNaN(growthOver)) {
 	          self.analyser(growthOver);
+	          self.preGrowthHook('Custom');
 	        } else if (growthOver === 'firstIndex') {
+	          self.preGrowthHook('First');
 	          self.analyser({ position: 0 });
 	        } else if (growthOver === 'prevIndex') {
+	          self.preGrowthHook('Previous');
 	          self.analyser({ relposition: -1 });
 	        } else {
+	          self.preGrowthHook(growthOver);
 	          self.analyser(growthOver);
+	        }
+	      }
+	    }, {
+	      key: 'updateAxisName',
+	      value: function updateAxisName(mode) {
+	        var origAxisName = this.origAxisName || 'Sale',
+	            userFn = this.extData && this.extData.axisFormatter,
+	            renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
+	          mode = mode + '';
+	          return prevData + ' growth w.r.t ' + mode.toLowerCase() + ' value';
+	        },
+	            analyserOptionsObject = this.analyserOptionsObject,
+	            exists = false,
+	            key = '',
+	            value = void 0;
+
+	        function check(ob) {
+	          for (key in ob) {
+	            value = ob[key];
+	            if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && value.submenu) {
+	              check(value);
+	            }
+	            if (key.indexOf(mode) + 1) {
+	              exists = true;
+	            }
+	          }
+	        }
+	        check(analyserOptionsObject);
+
+	        this.origAxisName = origAxisName;
+	        if (exists) {
+	          console.log(renameFn(origAxisName, mode));
+	        } else {
+	          console.log(origAxisName);
+	        }
+	      }
+	    }, {
+	      key: 'preGrowthHook',
+	      value: function preGrowthHook(val) {
+	        this.highlight(val);
+	        this.updateAxisName(val);
+	      }
+	    }, {
+	      key: 'highlight',
+	      value: function highlight(key) {
+	        var contextMenu = this.contextMenu,
+	            atomicLists = contextMenu && contextMenu.listContainerManager.container.atomicLists,
+	            i = atomicLists.length,
+	            j = 0,
+	            list = {},
+	            subList = {},
+	            noneFound = true;
+	        for (; i-- - 1;) {
+	          list = atomicLists[i];
+	          noneFound = true;
+	          if (list.name.indexOf(key) + 1) {
+	            list.node.style.fontWeight = 'bold';
+	          } else {
+	            list.node.style.fontWeight = '';
+	          }
+	          for (j = list.subConRef && list.subConRef.atomicLists.length || 0; j--;) {
+	            subList = list.subConRef.atomicLists[j];
+	            if (subList.name.indexOf(key) + 1) {
+	              subList.node.style.fontWeight = 'bold';
+	              list.node.style.fontWeight = 'bold';
+	              noneFound = false;
+	            } else {
+	              subList.node.style.fontWeight = '';
+	            }
+	            if (noneFound) {
+	              list.node.style.fontWeight = '';
+	            }
+	          }
 	        }
 	      }
 	    }, {
@@ -239,23 +348,7 @@
 	          borderThickness: 0
 	        });
 
-	        gaOptionsObj = {
-	          'First Index': { position: 0 },
-	          'Previous Index': { relposition: -1 },
-	          'Specific Value': {
-	            'submenu': true,
-	            'Minimum': 'Minimum',
-	            'Maximum': 'Maximum',
-	            'Average': 'Mean',
-	            'Median': 'Median',
-	            'Standard Deviation': 'Standard Deviation',
-	            'Custom Value...': function CustomValue() {
-	              popup(function (val) {
-	                return self.analyser(val);
-	              });
-	            }
-	          }
-	        };
+	        gaOptionsObj = this.analyserOptionsObject;
 
 	        contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
 	          paper: this.graphics.paper,
@@ -404,6 +497,7 @@
 	            id: 'reset',
 	            handler: function handler() {
 	              self.analyser('reset');
+	              self.preGrowthHook('reset');
 	            },
 	            action: 'click',
 	            style: subCatStyle
@@ -432,6 +526,7 @@
 	              style: subCatStyle,
 	              handler: function handler() {
 	                self.analyser(gaOptionsObj[i]);
+	                self.preGrowthHook(i);
 	              },
 	              action: 'click'
 	            };
@@ -452,9 +547,10 @@
 	              subObj['&nbsp;' + subMenuName] = {};
 	              subObj['&nbsp;' + subMenuName].handler = function () {
 	                if (typeof subMenuValue === 'function') {
-	                  subMenuValue();
+	                  subMenuValue(popup);
 	                } else {
 	                  self.analyser(subMenuValue);
+	                  self.preGrowthHook(subMenuName);
 	                }
 	              };
 	              subObj['&nbsp;' + subMenuName].action = 'click';

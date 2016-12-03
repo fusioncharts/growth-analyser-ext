@@ -3,21 +3,30 @@ const GrowthAnalyser = require('./growthanalyser');
 FusionCharts.register('extension', ['private', 'growth-analyser', function () {
   class GrowthAnalyserExt {
     constructor () {
+      var self = this;
       this.toolbox = FusionCharts.getComponent('api', 'toolbox');
       this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
       this.ComponentGroup = this.toolbox.ComponentGroup;
       this.SymbolStore = this.toolbox.SymbolStore;
-      window.ext = this;
+      this.analyserOptionsObject = {
+        'First Index': {position: 0},
+        'Previous Index': {relposition: -1},
+        'Specific Value': {
+          'submenu': true,
+          'Minimum': 'Minimum',
+          'Maximum': 'Maximum',
+          'Average': 'Mean',
+          'Median': 'Median',
+          'Standard Deviation': 'Standard Deviation',
+          'Custom Value...': (fn) => {
+            fn((val) => {
+              self.analyser(val);
+              self.preGrowthHook('Custom');
+            });
+          }
+        }
+      };
     }
-
-    renderChange () {
-      var chartInstance = this.tsObject.chartInstance,
-        componentStore = chartInstance.apiInstance.getComponentStore(),
-        i = 0;
-      for (i = 0; componentStore.getCanvasByIndex(i); ++i) {
-        componentStore.getCanvasByIndex(i).getComposition().PlotManager.plot();
-      }
-    };
 
     analyser (mode) {
       var self = this,
@@ -139,20 +148,79 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
     growthOverMode () {
       let self = this,
-        growthOver = this.extData && this.extData.growthOver;
+        growthOver = this.extData && this.extData.growthOver,
+        analyserOptionsObject = this.analyserOptionsObject,
+        exists = false;
+
+      function check (ob) {
+        var key, value;
+        for (key in ob) {
+          value = ob[key];
+          if (typeof value === 'object' && value.submenu) {
+            check(value);
+          }
+          if (key.indexOf(growthOver) + 1) {
+            exists = true;
+          }
+        }
+      }
+      check(analyserOptionsObject);
+      if (!exists) {
+        self.contextMenu && self.contextMenu.hideListItem('reset');
+        return;
+      }
+
       if (!isNaN(growthOver)) {
         self.analyser(growthOver);
-        self.highlight('Custom');
+        self.preGrowthHook('Custom');
       } else if (growthOver === 'firstIndex') {
-        self.highlight('First');
+        self.preGrowthHook('First');
         self.analyser({position: 0});
       } else if (growthOver === 'prevIndex') {
-        self.highlight('Previous');
+        self.preGrowthHook('Previous');
         self.analyser({relposition: -1});
       } else {
-        self.highlight(growthOver);
+        self.preGrowthHook(growthOver);
         self.analyser(growthOver);
       }
+    }
+
+    updateAxisName (mode) {
+      let origAxisName = this.origAxisName || 'Sale',
+        userFn = this.extData && this.extData.axisFormatter,
+        renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
+          mode = mode + '';
+          return prevData + ' growth w.r.t ' + mode.toLowerCase() + ' value';
+        },
+        analyserOptionsObject = this.analyserOptionsObject,
+        exists = false,
+        key = '',
+        value;
+
+      function check (ob) {
+        for (key in ob) {
+          value = ob[key];
+          if (typeof value === 'object' && value.submenu) {
+            check(value);
+          }
+          if (key.indexOf(mode) + 1) {
+            exists = true;
+          }
+        }
+      }
+      check(analyserOptionsObject);
+
+      this.origAxisName = origAxisName;
+      if (exists) {
+        console.log(renameFn(origAxisName, mode));
+      } else {
+        console.log(origAxisName);
+      }
+    }
+
+    preGrowthHook (val) {
+      this.highlight(val);
+      this.updateAxisName(val);
     }
 
     highlight (key) {
@@ -248,24 +316,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         borderThickness: 0
       });
 
-      gaOptionsObj = {
-        'First Index': {position: 0},
-        'Previous Index': {relposition: -1},
-        'Specific Value': {
-          'submenu': true,
-          'Minimum': 'Minimum',
-          'Maximum': 'Maximum',
-          'Average': 'Mean',
-          'Median': 'Median',
-          'Standard Deviation': 'Standard Deviation',
-          'Custom Value...': () => {
-            popup((val) => {
-              self.analyser(val);
-              self.highlight('Custom');
-            });
-          }
-        }
-      };
+      gaOptionsObj = this.analyserOptionsObject;
 
       contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
         paper: this.graphics.paper,
@@ -414,7 +465,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           id: 'reset',
           handler: function () {
             self.analyser('reset');
-            self.highlight('reset');
+            self.preGrowthHook('reset');
           },
           action: 'click',
           style: subCatStyle
@@ -443,7 +494,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             style: subCatStyle,
             handler: function () {
               self.analyser(gaOptionsObj[i]);
-              self.highlight(key);
+              self.preGrowthHook(i);
             },
             action: 'click'
           };
@@ -463,10 +514,10 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             subObj['&nbsp;' + subMenuName] = {};
             subObj['&nbsp;' + subMenuName].handler = function () {
               if (typeof subMenuValue === 'function') {
-                subMenuValue();
+                subMenuValue(popup);
               } else {
                 self.analyser(subMenuValue);
-                self.highlight('&nbsp;' + subMenuName);
+                self.preGrowthHook(subMenuName);
               }
             };
             subObj['&nbsp;' + subMenuName].action = 'click';

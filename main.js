@@ -161,6 +161,9 @@ var tsChart;
                       'growth-analyser': {
                         'growthOver': 'Median', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
+                        'axisFormatter': function (axisName, growthMode) {
+                          return axisName + ' growth w.r.t ' + growthMode + ' value';
+                        },
                         'posWrtCanvas': 'top',
                         'layout': 'inline',
                         'alignment': 'right',
