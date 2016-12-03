@@ -76,7 +76,8 @@
 	    }, {
 	      key: 'analyser',
 	      value: function analyser(mode) {
-	        var ga = this.ga || {},
+	        var self = this,
+	            ga = this.ga || {},
 	            store = this.tsObject.apiInstance.getComponentStore(),
 	            canvas = store.getCanvasByIndex(0),
 	            comp = canvas.getComposition(),
@@ -111,10 +112,13 @@
 	          yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
 	            return val;
 	          };
+	          debugger;
+	          self.contextMenu && self.contextMenu.hideListItem('reset');
 	        } else {
 	          yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
 	            return val + '%';
 	          };
+	          self.contextMenu && self.contextMenu.showListItem('reset');
 	        }
 	        // Update data
 	        ds.setDataBySeries(function (series) {
@@ -269,6 +273,7 @@
 	          symbolStroke: '#696969',
 	          symbolStrokeWidth: '2'
 	        });
+	        this.contextMenu = contextMenu;
 
 	        contextArray.push({
 	          'Show Growth Over': {

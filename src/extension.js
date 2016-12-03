@@ -19,7 +19,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
     };
 
     analyser (mode) {
-      var ga = this.ga || {},
+      var self = this,
+        ga = this.ga || {},
         store = this.tsObject.apiInstance.getComponentStore(),
         canvas = store.getCanvasByIndex(0),
         comp = canvas.getComposition(),
@@ -54,10 +55,14 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
           return val;
         };
+        console.log(self.contextMenu, 1);
+        self.contextMenu && self.contextMenu.hideListItem('reset');
       } else {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
           return val + '%';
         };
+        self.contextMenu && self.contextMenu.showListItem('reset');
+        console.log(self.contextMenu, 2);
       }
       // Update data
       ds.setDataBySeries(function (series) {
@@ -237,6 +242,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         symbolStroke: '#696969',
         symbolStrokeWidth: '2'
       });
+      this.contextMenu = contextMenu;
 
       contextArray.push({
         'Show Growth Over': {
@@ -362,6 +368,29 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         applyButton.element.style['color'] = '#e4e4e4';
       };
 
+      // Pusing reset Button
+      contextArray.push({
+        '&nbsp; &nbsp; Reset View': {
+          id: 'reset',
+          handler: function () {
+            self.analyser('reset');
+          },
+          action: 'click',
+          style: subCatStyle
+        }
+      });
+      contextArray.push({
+        '': {
+          id: 'reset',
+          style: {
+            backgroundColor: '#d5d2d2',
+            height: '1px',
+            margin: '1px',
+            padding: '0px'
+          }
+        }
+      });
+
       for (let i in gaOptionsObj) {
         let key,
           obj = {},
@@ -415,27 +444,20 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           }
         }
         contextArray.push(obj);
-        contextArray.push({
-          '': {
-            style: {
-              backgroundColor: '#d5d2d2',
-              height: '1px',
-              margin: '1px',
-              padding: '0px'
+        if (i.indexOf('Specific') === -1) {
+          contextArray.push({
+            '': {
+              style: {
+                backgroundColor: '#d5d2d2',
+                height: '1px',
+                margin: '1px',
+                padding: '0px'
+              }
             }
-          }
-        });
+          });
+        }
       }
 
-      contextArray.push({
-        '&nbsp; &nbsp; Reset View': {
-          handler: function () {
-            self.analyser('reset');
-          },
-          action: 'click',
-          style: subCatStyle
-        }
-      });
       contextMenu.appendAsList(contextArray);
 
       this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
