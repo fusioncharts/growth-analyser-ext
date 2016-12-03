@@ -243,7 +243,7 @@
 	            'submenu': true,
 	            'Minimum': 'Minimum',
 	            'Maximum': 'Maximum',
-	            'Mean': 'Mean',
+	            'Average': 'Mean',
 	            'Median': 'Median',
 	            'Standard Deviation': 'Standard Deviation',
 	            'Custom Value...': function CustomValue() {
@@ -271,7 +271,7 @@
 	        });
 
 	        contextArray.push({
-	          'Growth Analyser': {
+	          'Show growth over': {
 	            style: catStyle
 	          }
 	        });

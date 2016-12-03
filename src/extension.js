@@ -215,7 +215,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           'submenu': true,
           'Minimum': 'Minimum',
           'Maximum': 'Maximum',
-          'Mean': 'Mean',
+          'Average': 'Mean',
           'Median': 'Median',
           'Standard Deviation': 'Standard Deviation',
           'Custom Value...': () => { popup((val) => self.analyser(val)); }
@@ -239,7 +239,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       });
 
       contextArray.push({
-        'Growth Analyser': {
+        'Show growth over': {
           style: catStyle
         }
       });
