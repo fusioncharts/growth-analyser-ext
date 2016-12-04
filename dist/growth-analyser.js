@@ -164,7 +164,6 @@
 	      this.toolbars = [];
 	      this.measurement = {};
 	      this.toolbars.push(this.createToolbar());
-	      instance.growthOverMode();
 	      return this;
 	    };
 
@@ -208,7 +207,9 @@
 	    }
 
 	    updateAxisName (mode) {
-	      let origAxisName = this.origAxisName || 'Sale',
+	      let self = this,
+	        apiInstance = this.chartInstance && this.chartInstance.apiInstance,
+	        origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
 	        userFn = this.extData && this.extData.axisFormatter,
 	        renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
 	          mode = mode + '';
@@ -239,7 +240,12 @@
 	        changeAxis(origAxisName);
 	      }
 	      function changeAxis (val) {
-
+	        if (!origAxisName) {
+	          return;
+	        }
+	        apiInstance.getAxisName('y', {
+	          text: val
+	        });
 	      }
 	    }
 
@@ -683,6 +689,8 @@
 	        ln,
 	        i,
 	        toolbar;
+	      // Setting initial growth mode
+	      this.growthOverMode();
 	      x = x === undefined ? measurement.x : x;
 	      y = y === undefined ? measurement.y : y;
 	      width = width === undefined ? measurement.width : width;

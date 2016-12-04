@@ -99,7 +99,11 @@ var tsChart;
                         axes: [
                             {
                                 x: { },
-                                y: { }
+                                y: {
+                                  name: {
+                                    text: 'Sale'
+                                  }
+                                }
                             }
                         ],
                         datasets: [{

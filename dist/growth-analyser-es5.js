@@ -162,7 +162,6 @@
 	        this.toolbars = [];
 	        this.measurement = {};
 	        this.toolbars.push(this.createToolbar());
-	        instance.growthOverMode();
 	        return this;
 	      }
 	    }, {
@@ -208,7 +207,9 @@
 	    }, {
 	      key: 'updateAxisName',
 	      value: function updateAxisName(mode) {
-	        var origAxisName = this.origAxisName || 'Sale',
+	        var self = this,
+	            apiInstance = this.chartInstance && this.chartInstance.apiInstance,
+	            origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
 	            userFn = this.extData && this.extData.axisFormatter,
 	            renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
 	          mode = mode + '';
@@ -238,7 +239,14 @@
 	        } else {
 	          changeAxis(origAxisName);
 	        }
-	        function changeAxis(val) {}
+	        function changeAxis(val) {
+	          if (!origAxisName) {
+	            return;
+	          }
+	          apiInstance.getAxisName('y', {
+	            text: val
+	          });
+	        }
 	      }
 	    }, {
 	      key: 'preGrowthHook',
@@ -699,6 +707,8 @@
 	            ln,
 	            i,
 	            toolbar;
+	        // Setting initial growth mode
+	        this.growthOverMode();
 	        x = x === undefined ? measurement.x : x;
 	        y = y === undefined ? measurement.y : y;
 	        width = width === undefined ? measurement.width : width;
