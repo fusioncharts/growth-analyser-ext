@@ -111,7 +111,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.toolbars = [];
       this.measurement = {};
       this.toolbars.push(this.createToolbar());
-      // instance.growthOverMode();
+      instance.growthOverMode();
       return this;
     };
 
