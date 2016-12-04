@@ -73,6 +73,7 @@
 	          'Standard Deviation': 'Standard Deviation',
 	          'Custom Value...': (fn) => {
 	            fn((val) => {
+	              self.currentValue = val + '';
 	              self.analyser(val);
 	              self.preGrowthHook('Custom');
 	            });
@@ -211,9 +212,13 @@
 	        apiInstance = this.chartInstance && this.chartInstance.apiInstance,
 	        origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
 	        userFn = this.extData && this.extData.axisFormatter,
-	        renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
+	        renameFn = function (prevData, mode) {
 	          mode = mode + '';
-	          return prevData + ' growth w.r.t ' + mode.toLowerCase() + ' value';
+	          if (mode === 'Custom') {
+	            mode = self.currentValue + '';
+	          }
+	          prevData = prevData + '';
+	          return 'Growth of ' + prevData + ' over ' + mode.toLowerCase();
 	        },
 	        analyserOptionsObject = this.analyserOptionsObject,
 	        exists = false,

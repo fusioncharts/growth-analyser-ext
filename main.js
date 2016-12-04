@@ -163,10 +163,11 @@ var tsChart;
                     },
                     'extensions': {
                       'growth-analyser': {
-                        'growthOver': 'Median', // Minimum, Maximum, Mean, Median, Standard Deviation
+                        'growthOver': '3', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
-                        'axisFormatter': function (axisName, growthMode) {
-                          return axisName + ' growth w.r.t ' + growthMode + ' value';
+                        'axisFormatter': function (prevData, mode) {
+                            mode = mode + '';
+                            return 'Growth of ' + prevData + ' over ' + mode.toLowerCase();
                         },
                         'posWrtCanvas': 'top',
                         'layout': 'inline',
