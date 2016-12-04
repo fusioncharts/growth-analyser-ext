@@ -137,12 +137,13 @@
 	    init (require) {
 	      var instance = this,
 	        requiredParams = [
+	          'graphics',
+	          'chart',
 	          'globalReactiveModel',
 	          'spaceManagerInstance',
 	          'smartLabel',
 	          'chartInstance',
 	          'extData',
-	          'canvasData',
 	          function acquire () {
 	            let i = 0,
 	              ii = requiredParams.length - 1,

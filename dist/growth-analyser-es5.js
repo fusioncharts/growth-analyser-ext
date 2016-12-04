@@ -142,7 +142,7 @@
 	      key: 'init',
 	      value: function init(require) {
 	        var instance = this,
-	            requiredParams = ['globalReactiveModel', 'spaceManagerInstance', 'smartLabel', 'chartInstance', 'extData', 'canvasData', function acquire() {
+	            requiredParams = ['graphics', 'chart', 'globalReactiveModel', 'spaceManagerInstance', 'smartLabel', 'chartInstance', 'extData', function acquire() {
 	          var i = 0,
 	              ii = requiredParams.length - 1,
 	              param = '';
