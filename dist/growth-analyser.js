@@ -234,9 +234,12 @@
 
 	      this.origAxisName = origAxisName;
 	      if (exists) {
-	        // console.log(renameFn(origAxisName, mode));
+	        changeAxis(renameFn(origAxisName, mode));
 	      } else {
-	        // console.log(origAxisName);
+	        changeAxis(origAxisName);
+	      }
+	      function changeAxis (val) {
+
 	      }
 	    }
 
