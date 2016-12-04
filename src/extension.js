@@ -82,56 +82,25 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
     };
 
     init (require) {
-      var instance = this;
-      require([
-        'xAxis',
-        'yAxis',
-        'graphics',
-        'chart',
-        'dataset',
-        'PlotManager',
-        'canvasConfig',
-        'MarkerManager',
-        'reactiveModel',
-        'globalReactiveModel',
-        'spaceManagerInstance',
-        'smartLabel',
-        'chartInstance',
-        'extData',
-        'canvasData',
-        function (
-              xAxis,
-              yAxis,
-              graphics,
-              chart,
-              dataset,
-              plotManager,
-              canvasConfig,
-              markerManager,
-              reactiveModel,
-              globalReactiveModel,
-              spaceManagerInstance,
-              smartLabel,
-              chartInstance,
-              extData,
-              canvasData) {
-          instance.xAxis = xAxis;
-          instance.yAxis = yAxis;
-          instance.graphics = graphics;
-          instance.chart = chart;
-          instance.dataset = dataset;
-          instance.plotManager = plotManager;
-          instance.markerManager = markerManager;
-          instance.canvasConfig = canvasConfig;
-          instance.reactiveModel = reactiveModel;
-          instance.globalReactiveModel = globalReactiveModel;
-          instance.spaceManagerInstance = spaceManagerInstance;
-          instance.smartLabel = smartLabel;
-          instance.chartInstance = chartInstance;
-          instance.canvasData = canvasData;
-          instance.extData = extData;
-        }
-      ]);
+      var instance = this,
+        requiredParams = [
+          'graphics',
+          'chart',
+          'globalReactiveModel',
+          'spaceManagerInstance',
+          'smartLabel',
+          'chartInstance',
+          'extData',
+          function acquire () {
+            let i = 0,
+              ii = requiredParams.length - 1,
+              param = '';
+            for (i = 0; i < ii; ++i) {
+              param = requiredParams[i];
+              instance[param] = arguments[i];
+            }
+          }];
+      require(requiredParams);
       this.spaceManagerInstance = instance.spaceManagerInstance;
       this.globalReactiveModel = instance.globalReactiveModel;
       this.tsObject = instance.chartInstance;
