@@ -163,7 +163,7 @@ var tsChart;
                     },
                     'extensions': {
                       'growth-analyser': {
-                        'growthOver': '3', // Minimum, Maximum, Mean, Median, Standard Deviation
+                        'growthOver': 'Minimum', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
                         'axisFormatter': function (prevData, mode) {
                             mode = mode + '';

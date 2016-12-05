@@ -160,12 +160,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
         userFn = this.extData && this.extData.axisFormatter,
         renameFn = function (prevData, mode) {
-          mode = mode + '';
-          if (mode === 'Custom') {
-            mode = self.currentValue + '';
+          let text = mode + '';
+          if (text === 'Custom') {
+            text = self.currentValue + '';
           }
+          text = text.toLowerCase().replace('index', 'data');
           prevData = prevData + '';
-          return 'Growth of ' + prevData + ' over ' + mode.toLowerCase();
+          return prevData + ' (Growth over ' + text + ')';
         },
         analyserOptionsObject = this.analyserOptionsObject,
         exists = false,
