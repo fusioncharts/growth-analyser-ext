@@ -9,8 +9,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.ComponentGroup = this.toolbox.ComponentGroup;
       this.SymbolStore = this.toolbox.SymbolStore;
       this.analyserOptionsObject = {
-        'First Index': {position: 0},
-        'Previous Index': {relposition: -1},
+        'First Data': {position: 0},
+        'Previous Data': {relposition: -1},
         'Specific Value': {
           'submenu': true,
           'Minimum': 'Minimum',
@@ -164,7 +164,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           if (text === 'Custom') {
             text = self.currentValue + '';
           }
-          text = text.toLowerCase().replace('index', 'data');
+          text = text.toLowerCase();
           prevData = prevData + '';
           return prevData + ' (Growth over ' + text + ')';
         },
