@@ -47,7 +47,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         store = {};
         if (!ga.idMap) {
           ds.forEachSeries(function (a, b, c, series) {
-            store[series.getId()] = series.getAggregatedData();
+            store[series.getId()] = series.getOriginalData();
           });
           for (i in store) {
             storeAr.push(store[i]);
@@ -63,13 +63,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       nStoreArr = ga.gAnalyser.analyse(mode);
       // Changing y Axis formattor
       if (mode === 'reset' || !nStoreArr.changed) {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
-          return val;
+        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
+          return arg.numberFormatter.yAxis(val);
         };
         self.contextMenu && self.contextMenu.hideListItem('reset');
       } else {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val) {
-          return val + '%';
+        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
+          return arg.numberFormatter.yAxis(val) + '%';
         };
         self.contextMenu && self.contextMenu.showListItem('reset');
       }
