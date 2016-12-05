@@ -105,7 +105,7 @@
 	          store = {};
 	          if (!ga.idMap) {
 	            ds.forEachSeries(function (a, b, c, series) {
-	              store[series.getId()] = series.getOriginalData();
+	              store[series.getId()] = series.getAggregatedData();
 	            });
 	            for (i in store) {
 	              storeAr.push(store[i]);
@@ -389,8 +389,20 @@
 	              cross,
 	              inputField,
 	              applyButton,
-	              x = self.chart.width * 0.47 - 90,
-	              y = self.chart.height / 2 - 40;
+	              chartWidth = self.chart && self.chart.width || 0,
+	              chartHeight = self.chart && self.chart.height || 0,
+	              x = chartWidth / 2 - 90,
+	              y = chartHeight / 2 - 40,
+	              shadow;
+
+	          shadow = paper.rect({
+	            x: 0,
+	            y: 0,
+	            width: chartWidth,
+	            height: chartHeight,
+	            fill: '#000',
+	            opacity: '0.35'
+	          });
 
 	          box = paper.html('div', {
 	            fill: '#f7f7f7',
@@ -430,6 +442,7 @@
 
 	          cross.on('click', function () {
 	            box.hide();
+	            shadow.remove();
 	          });
 
 	          inputField = paper.html('input', {
@@ -457,6 +470,7 @@
 
 	          function applyValue() {
 	            box.hide();
+	            shadow.remove();
 	            callback(inputField.val());
 	          }
 	          applyButton.on('click', function () {
@@ -759,22 +773,29 @@
 	  }
 
 	  _createClass(GrowthAnalyser, [{
+	    key: 'getAnalyser',
+	    value: function getAnalyser(mode) {
+	      return this.analyse.bind(this, mode);
+	    }
+	  }, {
 	    key: 'analyse',
-	    value: function analyse(mode) {
+	    value: function analyse(mode, rData) {
 	      var i = 0,
 	          ii = 0,
 	          j = 0,
 	          jj = 0,
 	          num = 0,
+	          Formulae = this.Formulae,
+	          origData = rData || this.data,
 	          checkArr = [],
 	          checkNum = 0,
-	          dataAr = this.data,
+	          dataAr = origData,
 	          nDataAr = [],
 	          tempAr = [],
 	          temp = 0,
 	          unchanged = {
 	        changed: false,
-	        value: this.data.map(function (a) {
+	        value: origData.map(function (a) {
 	          return a.map(function (b) {
 	            return undefined;
 	          });
@@ -782,7 +803,7 @@
 	      },
 	          dataReset = {
 	        changed: false,
-	        value: this.data.map(function (a) {
+	        value: origData.map(function (a) {
 	          return a.map(function (b) {
 	            return b;
 	          });
@@ -805,7 +826,7 @@
 	          nDataAr.push(tempAr);
 	        }
 	      } else if (typeof mode === 'string') {
-	        mode = this.Formulae[mode];
+	        mode = Formulae[mode];
 	        if (!mode) {
 	          return dataReset;
 	        }

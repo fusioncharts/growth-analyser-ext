@@ -6,27 +6,34 @@ class GrowthAnalyser {
     });
     this.Formulae = Formulae;
   }
-  analyse (mode) {
+
+  getAnalyser (mode) {
+    return this.analyse.bind(this, mode);
+  }
+
+  analyse (mode, rData) {
     let i = 0,
       ii = 0,
       j = 0,
       jj = 0,
       num = 0,
+      Formulae = this.Formulae,
+      origData = rData || this.data,
       checkArr = [],
       checkNum = 0,
-      dataAr = this.data,
+      dataAr = origData,
       nDataAr = [],
       tempAr = [],
       temp = 0,
       unchanged = {
         changed: false,
-        value: this.data.map((a) => {
+        value: origData.map((a) => {
           return a.map((b) => { return undefined; });
         })
       },
       dataReset = {
         changed: false,
-        value: this.data.map((a) => {
+        value: origData.map((a) => {
           return a.map((b) => { return b; });
         })
       };
@@ -46,7 +53,7 @@ class GrowthAnalyser {
         nDataAr.push(tempAr);
       }
     } else if (typeof mode === 'string') {
-      mode = this.Formulae[mode];
+      mode = Formulae[mode];
       if (!mode) {
         return dataReset;
       }
