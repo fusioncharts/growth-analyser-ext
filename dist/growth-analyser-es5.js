@@ -938,7 +938,7 @@
 	      return a;
 	    }).sort(function (a, b) {
 	      return a - b;
-	    })[arr.length / 2];
+	    })[arr.length >> 1];
 	  },
 	  'Standard Deviation': function StandardDeviation(values) {
 	    function average(data) {

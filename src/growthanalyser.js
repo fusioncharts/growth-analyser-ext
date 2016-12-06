@@ -158,7 +158,7 @@ var Formulae = {
     }) / arr.length;
   },
   Median: (arr) => {
-    return arr.map((a) => a).sort((a, b) => { return a - b; })[arr.length / 2];
+    return arr.map((a) => a).sort((a, b) => { return a - b; })[arr.length >> 1];
   },
   'Standard Deviation': (values) => {
     function average (data) {
