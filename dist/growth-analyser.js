@@ -55,6 +55,25 @@
 
 	FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 	  class GrowthAnalyserExt {
+	    /**
+	    * An extension for FusionTime XT charts.
+	    * Helps to analyse growth of data based on posisitions
+	    * specific formulae and custom values.
+	    * Growth analyser supports pre analysis of data
+	    * which can be provided in chart configuration
+	    * @example
+	    * {
+	    *   datasource: {
+	    *     extensions: {
+	    *       'growth-analyser': {
+	    *         'growthOver': 'firstIndex'
+	    *        }
+	    *     }
+	    *   }
+	    * }
+	    * Available 'growthOver' options are 'firstIndex', 'prevIndex', 'Minimum', 'Maximum',
+	    * 'Average', 'Median' & 'Standard Deviation'.
+	    */
 	    constructor () {
 	      var self = this;
 	      this.toolbox = FusionCharts.getComponent('api', 'toolbox');

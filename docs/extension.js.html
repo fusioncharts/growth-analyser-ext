@@ -1,4 +1,43 @@
-const GrowthAnalyser = require('./growthanalyser');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>extension.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GrowthAnalyserExt.html">GrowthAnalyserExt</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">extension.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const GrowthAnalyser = require('./growthanalyser');
 
 FusionCharts.register('extension', ['private', 'growth-analyser', function () {
   class GrowthAnalyserExt {
@@ -19,7 +58,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
     *   }
     * }
     * Available 'growthOver' options are 'firstIndex', 'prevIndex', 'Minimum', 'Maximum',
-    * 'Average', 'Median' & 'Standard Deviation'.
+    * 'Average', 'Median' &amp; 'Standard Deviation'.
     */
     constructor () {
       var self = this;
@@ -85,12 +124,12 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
           return arg.numberFormatter.yAxis(val);
         };
-        self.contextMenu && self.contextMenu.hideListItem('reset');
+        self.contextMenu &amp;&amp; self.contextMenu.hideListItem('reset');
       } else {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
           return arg.numberFormatter.yAxis(val) + '%';
         };
-        self.contextMenu && self.contextMenu.showListItem('reset');
+        self.contextMenu &amp;&amp; self.contextMenu.showListItem('reset');
       }
       // Update data
       ds.setDataBySeries(function (series) {
@@ -115,7 +154,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             let i = 0,
               ii = requiredParams.length - 1,
               param = '';
-            for (i = 0; i < ii; ++i) {
+            for (i = 0; i &lt; ii; ++i) {
               param = requiredParams[i];
               instance[param] = arguments[i];
             }
@@ -136,7 +175,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
     growthOverMode () {
       let self = this,
-        growthOver = this.extData && this.extData.growthOver,
+        growthOver = this.extData &amp;&amp; this.extData.growthOver,
         analyserOptionsObject = this.analyserOptionsObject,
         exists = false;
 
@@ -144,7 +183,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         var key, value;
         for (key in ob) {
           value = ob[key];
-          if (typeof value === 'object' && value.submenu) {
+          if (typeof value === 'object' &amp;&amp; value.submenu) {
             check(value);
           }
           if (key.indexOf(growthOver) + 1) {
@@ -154,7 +193,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       }
       check(analyserOptionsObject);
       if (!exists) {
-        self.contextMenu && self.contextMenu.hideListItem('reset');
+        self.contextMenu &amp;&amp; self.contextMenu.hideListItem('reset');
         return;
       }
 
@@ -175,9 +214,9 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
     updateAxisName (mode) {
       let self = this,
-        apiInstance = this.chartInstance && this.chartInstance.apiInstance,
+        apiInstance = this.chartInstance &amp;&amp; this.chartInstance.apiInstance,
         origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
-        userFn = this.extData && this.extData.axisFormatter,
+        userFn = this.extData &amp;&amp; this.extData.axisFormatter,
         renameFn = function (prevData, mode) {
           let text = mode + '';
           if (text === 'Custom') {
@@ -195,7 +234,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       function check (ob) {
         for (key in ob) {
           value = ob[key];
-          if (typeof value === 'object' && value.submenu) {
+          if (typeof value === 'object' &amp;&amp; value.submenu) {
             check(value);
           }
           if (key.indexOf(mode) + 1) {
@@ -228,7 +267,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
     highlight (key) {
       let contextMenu = this.contextMenu,
-        atomicLists = contextMenu && contextMenu.listContainerManager.container.atomicLists,
+        atomicLists = contextMenu &amp;&amp; contextMenu.listContainerManager.container.atomicLists,
         i = atomicLists.length,
         j = 0,
         list = {},
@@ -242,7 +281,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         } else {
           list.node.style.fontWeight = '';
         }
-        for (j = list.subConRef && list.subConRef.atomicLists.length || 0; j--;) {
+        for (j = list.subConRef &amp;&amp; list.subConRef.atomicLists.length || 0; j--;) {
           subList = list.subConRef.atomicLists[j];
           if (subList.name.indexOf(key) + 1) {
             subList.node.style.fontWeight = 'bold';
@@ -268,7 +307,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         popup,
         paper = this.graphics.paper,
         chartContainer = this.graphics.container,
-        userStyle = self.extData && self.extData.style || {},
+        userStyle = self.extData &amp;&amp; self.extData.style || {},
         subCatStyle = {
           'font-size': '12px',
           'color': '#696969',
@@ -352,8 +391,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           cross,
           inputField,
           applyButton,
-          chartWidth = self.chart && self.chart.width || 0,
-          chartHeight = self.chart && self.chart.height || 0,
+          chartWidth = self.chart &amp;&amp; self.chart.width || 0,
+          chartHeight = self.chart &amp;&amp; self.chart.height || 0,
           x = (chartWidth / 2) - 90,
           y = (chartHeight / 2) - 40,
           shadow;
@@ -478,7 +517,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
       // Pusing reset Button
       contextArray.push({
-        '&nbsp; &nbsp; Reset View': {
+        '&amp;nbsp; &amp;nbsp; Reset View': {
           id: 'reset',
           handler: function () {
             self.analyser('reset');
@@ -505,7 +544,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           obj = {},
           subObj = {};
         if (!gaOptionsObj[i].submenu) {
-          key = '&nbsp; &nbsp; ' + i;
+          key = '&amp;nbsp; &amp;nbsp; ' + i;
           obj[key] = {};
           obj[key] = {
             style: subCatStyle,
@@ -516,7 +555,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             action: 'click'
           };
         } else {
-          key = '&#9666&nbsp; ' + i;
+          key = '&amp;#9666&amp;nbsp; ' + i;
           obj[key] = {};
           obj[key].action = 'click';
           obj[key].style = subCatStyle;
@@ -528,8 +567,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
               continue;
             }
             subObj = {};
-            subObj['&nbsp;' + subMenuName] = {};
-            subObj['&nbsp;' + subMenuName].handler = function () {
+            subObj['&amp;nbsp;' + subMenuName] = {};
+            subObj['&amp;nbsp;' + subMenuName].handler = function () {
               if (typeof subMenuValue === 'function') {
                 subMenuValue(popup);
               } else {
@@ -537,8 +576,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
                 self.preGrowthHook(subMenuName);
               }
             };
-            subObj['&nbsp;' + subMenuName].action = 'click';
-            subObj['&nbsp;' + subMenuName].style = subCatStyle;
+            subObj['&amp;nbsp;' + subMenuName].action = 'click';
+            subObj['&amp;nbsp;' + subMenuName].style = subCatStyle;
             obj[key].handler.push(subObj);
             if (j.indexOf('Custom') === -1) {
               obj[key].handler.push({
@@ -597,7 +636,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         i,
         ln;
 
-      for (i = 0, ln = this.toolbars.length; i < ln; i++) {
+      for (i = 0, ln = this.toolbars.length; i &lt; ln; i++) {
         logicalSpace = this.toolbars[i].getLogicalSpace(availableWidth, availableHeight);
         width = Math.max(logicalSpace.width, width);
         height += logicalSpace.height;
@@ -682,8 +721,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       width = width === undefined ? measurement.width : width;
       height = height === undefined ? measurement.height : height;
       group = group === undefined ? this.parentGroup : group;
-      if (width && height) {
-        for (i = 0, ln = toolbars.length; i < ln; i++) {
+      if (width &amp;&amp; height) {
+        for (i = 0, ln = toolbars.length; i &lt; ln; i++) {
           toolbar = toolbars[i];
           toolbar.draw(x, y);
         }
@@ -692,3 +731,22 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
   };
   FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
 }]);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Wed Dec 07 2016 13:46:44 GMT+0530 (IST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
