@@ -166,32 +166,13 @@ var tsChart;
                         'growthOver': 'Minimum', // Minimum, Maximum, Mean, Median, Standard Deviation
                                                    // prevIndex, firstIndex
                         'axisFormatter': function (prevData, mode) {
-                            mode = mode + '';
-                            return 'Growth of ' + prevData + ' over ' + mode.toLowerCase();
-                        },
-                        'posWrtCanvas': 'top',
-                        'layout': 'inline',
-                        'alignment': 'right',
-                        'orientation': 'horizontal',
-                        'style': {
-                          'category': {
-                            'font-size': '13px',
-                            'color': '#4b4b4b',
-                            'font-family': '"Lucida Grande", Sans-serif',
-                            'fontWeight': 'bold'
-                          },
-                          'subCategory': {
-                            'font-size': '12px',
-                            'color': '#4b4b4b',
-                            'font-family': '"Lucida Grande", Sans-serif'
-                          },
-                          'popup': {
-                            'fontSize': '10px',
-                            'lineHeight': '15px',
-                            'font-family': '"Lucida Grande", Sans-serif',
-                            'stroke': '#676767',
-                            'stroke-width': '2'
+                          let text = mode + '';
+                          if (text === 'Custom') {
+                            text = self.currentValue + '';
                           }
+                          text = text.toLowerCase();
+                          prevData = prevData + '';
+                          return prevData + ' (Growth over ' + text + ')';
                         }
                       }
                     }

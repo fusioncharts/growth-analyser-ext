@@ -18,6 +18,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
     *     }
     *   }
     * }
+    *
     * Available 'growthOver' options are 'firstIndex', 'prevIndex', 'Minimum', 'Maximum',
     * 'Average', 'Median' & 'Standard Deviation'.
     */
@@ -178,7 +179,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         apiInstance = this.chartInstance && this.chartInstance.apiInstance,
         origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
         userFn = this.extData && this.extData.axisFormatter,
-        renameFn = function (prevData, mode) {
+        renameFn = typeof userFn === 'function' && userFn || function (prevData, mode) {
           let text = mode + '';
           if (text === 'Custom') {
             text = self.currentValue + '';
