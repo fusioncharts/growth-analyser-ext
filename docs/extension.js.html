@@ -214,59 +214,61 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
     }
 
     updateAxisName (mode) {
-      let self = this,
-        apiInstance = this.chartInstance &amp;&amp; this.chartInstance.apiInstance,
-        origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
-        userFn = this.extData &amp;&amp; this.extData.axisFormatter,
-        renameFn = typeof userFn === 'function' &amp;&amp; userFn || function (prevData, mode) {
-          let text = mode + '';
-          if (text === 'Custom') {
-            text = self.currentValue + '';
-          }
-          text = text.toLowerCase();
-          prevData = prevData + '';
-          return prevData + ' (Growth over ' + text + ')';
-        },
-        analyserOptionsObject = this.analyserOptionsObject,
-        exists = false,
-        key = '',
-        value;
+      return;
+      // let self = this,
+      //   apiInstance = this.chartInstance &amp;&amp; this.chartInstance.apiInstance,
+      //   origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
+      //   userFn = this.extData &amp;&amp; this.extData.axisFormatter,
+      //   renameFn = typeof userFn === 'function' &amp;&amp; userFn || function (prevData, mode) {
+      //     let text = mode + '';
+      //     if (text === 'Custom') {
+      //       text = self.currentValue + '';
+      //     }
+      //     text = text.toLowerCase();
+      //     prevData = prevData + '';
+      //     return prevData + ' (Growth over ' + text + ')';
+      //   },
+      //   analyserOptionsObject = this.analyserOptionsObject,
+      //   exists = false,
+      //   key = '',
+      //   value;
 
-      function check (ob) {
-        for (key in ob) {
-          value = ob[key];
-          if (typeof value === 'object' &amp;&amp; value.submenu) {
-            check(value);
-          }
-          if (key.indexOf(mode) + 1) {
-            exists = true;
-          }
-        }
-      }
-      check(analyserOptionsObject);
+      // function check (ob) {
+      //   for (key in ob) {
+      //     value = ob[key];
+      //     if (typeof value === 'object' &amp;&amp; value.submenu) {
+      //       check(value);
+      //     }
+      //     if (key.indexOf(mode) + 1) {
+      //       exists = true;
+      //     }
+      //   }
+      // }
+      // check(analyserOptionsObject);
 
-      this.origAxisName = origAxisName;
-      if (exists) {
-        changeAxis(renameFn(origAxisName, mode));
-      } else {
-        changeAxis(origAxisName);
-      }
-      function changeAxis (val) {
-        if (!origAxisName) {
-          return;
-        }
-        apiInstance.getAxisName('y', {
-          text: val
-        });
-      }
+      // this.origAxisName = origAxisName;
+      // if (exists) {
+      //   changeAxis(renameFn(origAxisName, mode));
+      // } else {
+      //   changeAxis(origAxisName);
+      // }
+      // function changeAxis (val) {
+      //   if (!origAxisName) {
+      //     return;
+      //   }
+      //   apiInstance.getAxisName('y', {
+      //     text: val
+      //   });
+      // }
     }
 
     preGrowthHook (val) {
-      this.highlight(val);
+      // this.highlight(val);
       this.updateAxisName(val);
     }
 
     highlight (key) {
+      // return;
       let contextMenu = this.contextMenu,
         atomicLists = contextMenu &amp;&amp; contextMenu.listContainerManager.container.atomicLists,
         i = atomicLists.length,
@@ -307,6 +309,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         gaOptionsObj = {},
         popup,
         paper = this.graphics.paper,
+        d3 = paper.getInstances().d3,
         chartContainer = this.graphics.container,
         userStyle = self.extData &amp;&amp; self.extData.style || {},
         subCatStyle = {
@@ -327,6 +330,28 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           'stroke': '#676767',
           'stroke-width': '2'
         };
+
+      function symbolFn (x, y, width, height) {
+        var rad = height / 2,
+          r = rad * 2,
+          space = Math.round(r / 4),
+          halfWidth = Math.round(r / 2) * 0.7,
+          startX = (x - halfWidth),
+          endX = (x + halfWidth),
+          startY = (y + space),
+          endY = (y - space);
+
+        x = (x + width * 0.5);
+        y = (y + height * 0.5);
+
+        return {
+          type: 'path',
+          attrs: {
+            d: ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L',
+              endX, endY].toString().replace(/,/g, ' ')
+          }
+        };
+      }
 
       userStyle.category = userStyle.category || {};
       userStyle.subCategory = userStyle.subCategory || {};
@@ -361,21 +386,28 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
       gaOptionsObj = this.analyserOptionsObject;
 
-      contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-        paper: this.graphics.paper,
-        chart: this.chart,
-        smartLabel: this.smartLabel,
-        chartContainer: this.graphics.container
-      }, {
+      contextMenu = d3.buttonWithContextMenu(symbolFn, this.graphics.container).setConfig({
         width: 24,
-        height: 24,
+        height: 22,
         position: 'right',
-        stroke: '#ced5d4',
-        strokeWidth: '1',
-        radius: '1',
-        symbolStroke: '#696969',
-        symbolStrokeWidth: '2'
+        radius: '1'
       });
+
+      // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
+      //   paper: this.graphics.paper,
+      //   chart: this.chart,
+      //   smartLabel: this.smartLabel,
+      //   chartContainer: this.graphics.container
+      // }, {
+      //   width: 24,
+      //   height: 24,
+      //   position: 'right',
+      //   stroke: '#ced5d4',
+      //   strokeWidth: '1',
+      //   radius: '1',
+      //   symbolStroke: '#696969',
+      //   symbolStrokeWidth: '2'
+      // });
       this.contextMenu = contextMenu;
 
       contextArray.push({
@@ -609,23 +641,24 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         }
       }
 
-      contextMenu.appendAsList(contextArray);
+      // contextMenu.appendAsList([]);
 
-      this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
-        var x = posx,
-          y = posy,
-          r = rad * 2,
-          space = Math.round(r / 4),
-          halfWidth = Math.round(r / 2) * 0.7,
-          startX = (x - halfWidth),
-          endX = (x + halfWidth),
-          startY = (y + space),
-          endY = (y - space);
-        return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
-      });
+      // this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
+      //   var x = posx,
+      //     y = posy,
+      //     r = rad * 2,
+      //     space = Math.round(r / 4),
+      //     halfWidth = Math.round(r / 2) * 0.7,
+      //     startX = (x - halfWidth),
+      //     endX = (x + halfWidth),
+      //     startY = (y + space),
+      //     endY = (y - space);
+      //   return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
+      // });
 
       group.addSymbol(contextMenu);
       toolbar.addComponent(group);
+      console.log(contextMenu);
       return toolbar;
     };
 
@@ -744,7 +777,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Thu Dec 08 2016 12:29:30 GMT+0530 (IST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Jan 23 2017 19:34:10 GMT+0530 (IST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

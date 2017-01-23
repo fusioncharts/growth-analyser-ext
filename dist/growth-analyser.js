@@ -144,7 +144,7 @@
 	        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
 	          return arg.numberFormatter.yAxis(val) + '%';
 	        };
-	        self.contextMenu && self.contextMenu.showListItem('reset');
+	        // self.contextMenu && self.contextMenu.showListItem('reset');
 	      }
 	      // Update data
 	      ds.setDataBySeries(function (series) {
@@ -228,6 +228,7 @@
 	    }
 
 	    updateAxisName (mode) {
+	      return;
 	      let self = this,
 	        apiInstance = this.chartInstance && this.chartInstance.apiInstance,
 	        origAxisName = this.origAxisName || apiInstance.getAxisName('y'),
@@ -276,7 +277,7 @@
 	    }
 
 	    preGrowthHook (val) {
-	      this.highlight(val);
+	      // this.highlight(val);
 	      this.updateAxisName(val);
 	    }
 
@@ -312,6 +313,22 @@
 	      }
 	    }
 
+	    addCssRules (classNames, styles) {
+	      var key,
+	        className,
+	        paper = this.graphics.paper;
+	      for (key in classNames) {
+	        className = classNames[key];
+	        switch (key) {
+	          case 'container':
+	            styles.container && paper.cssAddRule('.' + className, styles.container.style);
+	            break;
+	          case 'text':
+	            styles.text && paper.cssAddRule('.' + className, styles.text.style);
+	        }
+	      }
+	    }
+
 	    createToolbar () {
 	      var toolbar,
 	        group,
@@ -320,7 +337,9 @@
 	        contextArray = [],
 	        gaOptionsObj = {},
 	        popup,
+	        key,
 	        paper = this.graphics.paper,
+	        d3 = paper.getInstances().d3,
 	        chartContainer = this.graphics.container,
 	        userStyle = self.extData && self.extData.style || {},
 	        subCatStyle = {
@@ -331,8 +350,7 @@
 	        catStyle = {
 	          'font-size': '13px',
 	          'color': '#4b4b4b',
-	          'font-family': '"Lucida Grande", Sans-serif',
-	          'fontWeight': 'bold'
+	          'font-family': '"Lucida Grande", Sans-serif'
 	        },
 	        popupStyle = {
 	          'fontSize': 10 + 'px',
@@ -340,7 +358,102 @@
 	          'font-family': '"Lucida Grande", Sans-serif',
 	          'stroke': '#676767',
 	          'stroke-width': '2'
+	        },
+	        divider = {
+	          backgroundColor: '#d5d2d2'
+	        },
+	        button = {
+	          height: 22,
+	          radius: 1,
+	          className: 'standard-period-selector',
+	          container: {
+	            style: {
+	              fill: '#FFFFFF',
+	              'stroke-width': '1px',
+	              stroke: '#CED5D4',
+	              labelFill: '#4b4b4b',
+	              strokeWidth: '1px'
+	              // 'input-shadow-fill': '#000000',
+	              // 'input-shadow-opacity': 0.35,
+	            }
+	          },
+	          symbol: {
+	            style: {
+	              'fill': '#4b4b4b'
+	            }
+	          },
+	          states: {
+	            hover: {
+	              className: 'standard-period-selector-state-hover',
+	              container: {
+	                style: {
+	                  cursor: 'pointer',
+	                  fill: '#f7f7f7'
+	                }
+	              }
+	            }
+	          }
+	        },
+	        dropDown = {
+	          container: {
+	            style: {
+	              background: '#fff',
+	              'border-color': '#898b8b',
+	              'border-radius': '1px',
+	              'border-style': 'solid',
+	              'border-width': '2px',
+	              'font-size': '11px',
+	              'font-family': '"Lucida Grande", sans-serif'
+	            }
+	          },
+	          listItem: {
+	            style: {},
+	            states: {
+	              hover: {
+	                className: 'fc-dropdown-list-item-hover',
+	                style: {
+	                  'background': '#e6e8e8',
+	                  'color': '#696969',
+	                  'cursor': 'pointer'
+	                }
+	              },
+	              selected: {
+	                className: 'fc-dropdown-list-item-hover',
+	                style: {
+	                  'background': '#898b8b',
+	                  'color': '#fff'
+	                }
+	              }
+	            }
+	          }
+	        },
+	        listItemStyles = {
+	          'fc-dropdown-list-item-cat': catStyle,
+	          'fc-dropdown-list-item-subcat': subCatStyle,
+	          'fc-dropdown-list-divider': divider,
 	        };
+
+
+	      for (key in listItemStyles) {
+	        paper.cssAddRule('.' + key, listItemStyles[key]);
+	      }
+
+	      function symbolFn (x, y, width, height) {
+	        var x = x,
+	          y = y,
+	          width = width,
+	          height = height;
+
+	        return {
+	          type: 'path',
+	          attrs: {
+	            d: ['M', x, y, ',', 'L', (x + width), y, 'M', x, (y + height / 2), ',', 'L', (x + width), (y + height / 2),
+	              'M', x, (y + height), ',', 'L', (x + width), (y + height)].join(' '),
+	            stroke: '#ff0000',
+	            'stroke-width': '2px'
+	          }
+	        };
+	      }
 
 	      userStyle.category = userStyle.category || {};
 	      userStyle.subCategory = userStyle.subCategory || {};
@@ -375,27 +488,57 @@
 
 	      gaOptionsObj = this.analyserOptionsObject;
 
-	      contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-	        paper: this.graphics.paper,
-	        chart: this.chart,
-	        smartLabel: this.smartLabel,
-	        chartContainer: this.graphics.container
-	      }, {
+	      contextMenu = d3.buttonWithContextMenu(symbolFn, this.graphics.container).setConfig({
 	        width: 24,
-	        height: 24,
+	        height: 22,
 	        position: 'right',
-	        stroke: '#ced5d4',
-	        strokeWidth: '1',
 	        radius: '1',
-	        symbolStroke: '#696969',
-	        symbolStrokeWidth: '2'
+	        padding: {
+	          top: 6,
+	          bottom: 6,
+	          left: 6,
+	          right: 6
+	        }
 	      });
+
+	      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.getClassName()), button);
+
+	      var dm = contextMenu.config.dropDownMenu;
+	        for (var components in dm) {
+	          var component = dm[components];
+	          switch (components) {
+	            case 'container':
+	              paper.cssAddRule('.' + component.className, dropDown.container.style);
+	              break;
+	            case 'listItem':
+	              paper.cssAddRule('.' + component.className, dropDown.listItem.style);
+	              var states = component.states;
+	              for (var state in states) {
+	                paper.cssAddRule('.' + states[state], dropDown.listItem.states[state].style);
+	              }
+	              break;
+	          }
+	        }
+	      // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
+	      //   paper: this.graphics.paper,
+	      //   chart: this.chart,
+	      //   smartLabel: this.smartLabel,
+	      //   chartContainer: this.graphics.container
+	      // }, {
+	      //   width: 24,
+	      //   height: 24,
+	      //   position: 'right',
+	      //   stroke: '#ced5d4',
+	      //   strokeWidth: '1',
+	      //   radius: '1',
+	      //   symbolStroke: '#696969',
+	      //   symbolStrokeWidth: '2'
+	      // });
 	      this.contextMenu = contextMenu;
 
 	      contextArray.push({
-	        'Show Growth Over': {
-	          style: catStyle
-	        }
+	        name: 'Show Growth Over',
+	        interactivity: false
 	      });
 	      popup = function (callback) {
 	        var box,
@@ -532,26 +675,24 @@
 
 	      // Pusing reset Button
 	      contextArray.push({
-	        '&nbsp; &nbsp; Reset View': {
-	          id: 'reset',
-	          handler: function () {
-	            self.analyser('reset');
-	            self.preGrowthHook('reset');
-	          },
-	          action: 'click',
-	          style: subCatStyle
-	        }
+	        name: 'Reset View',
+	        // className: 'fc-dropdown-list-divider',
+	        id: 'reset',
+	        className: 'fc-dropdown-list-item-cat',
+	        padding: {
+	          left: 20
+	        },
+	        handler: function () {
+	          self.analyser('reset');
+	          self.preGrowthHook('reset');
+	        },
+	        action: 'click'/*,
+	        className: 'fc-dropdown-list-item-cat'*/
 	      });
 	      contextArray.push({
-	        '': {
-	          id: 'reset',
-	          style: {
-	            backgroundColor: '#d5d2d2',
-	            height: '1px',
-	            margin: '1px',
-	            padding: '0px'
-	          }
-	        }
+	        divider: true,
+	        interactivity: false/*,
+	        className: 'fc-dropdown-list-divider'*/
 	      });
 
 	      for (let i in gaOptionsObj) {
@@ -559,10 +700,14 @@
 	          obj = {},
 	          subObj = {};
 	        if (!gaOptionsObj[i].submenu) {
-	          key = '&nbsp; &nbsp; ' + i;
-	          obj[key] = {};
-	          obj[key] = {
-	            style: subCatStyle,
+	          key = i;
+	          // obj[key] = {};
+	          obj = {
+	            name: key,
+	            className: 'fc-dropdown-list-item-cat',
+	            padding: {
+	              left: 20
+	            },
 	            handler: function () {
 	              self.analyser(gaOptionsObj[i]);
 	              self.preGrowthHook(i);
@@ -570,11 +715,16 @@
 	            action: 'click'
 	          };
 	        } else {
-	          key = '&#9666&nbsp; ' + i;
-	          obj[key] = {};
-	          obj[key].action = 'click';
-	          obj[key].style = subCatStyle;
-	          obj[key].handler = [];
+	          obj = {};
+	          key = i;
+	          obj.name = key;
+	          obj.action = 'click';
+	          // obj.style = subCatStyle;
+	          obj.className = 'fc-dropdown-list-item-cat';
+	          obj.handler = [];
+	          obj.padding = {
+	            left: 20
+	          };
 	          for (let j in gaOptionsObj[i]) {
 	            let subMenuName = j,
 	              subMenuValue = gaOptionsObj[i][j];
@@ -582,8 +732,13 @@
 	              continue;
 	            }
 	            subObj = {};
-	            subObj['&nbsp;' + subMenuName] = {};
-	            subObj['&nbsp;' + subMenuName].handler = function () {
+	            // subObj = {};
+	            // subObj.padding = {
+	            //   left: 2
+	            // };
+	            subObj.className = 'fc-dropdown-list-item-subcat';
+	            subObj.name = subMenuName;
+	            subObj.handler = function () {
 	              if (typeof subMenuValue === 'function') {
 	                subMenuValue(popup);
 	              } else {
@@ -591,19 +746,14 @@
 	                self.preGrowthHook(subMenuName);
 	              }
 	            };
-	            subObj['&nbsp;' + subMenuName].action = 'click';
-	            subObj['&nbsp;' + subMenuName].style = subCatStyle;
-	            obj[key].handler.push(subObj);
+	            subObj.action = 'click';
+	            subObj.style = subCatStyle;
+	            obj.handler.push(subObj);
 	            if (j.indexOf('Custom') === -1) {
-	              obj[key].handler.push({
-	                '': {
-	                  style: {
-	                    backgroundColor: '#d5d2d2',
-	                    height: '1px',
-	                    margin: '1px',
-	                    padding: '0px'
-	                  }
-	                }
+	              obj.handler.push({
+	                divider: true,
+	                interactivity: false /*,
+	                className: 'fc-dropdown-list-divider'*/
 	              });
 	            }
 	          }
@@ -611,35 +761,17 @@
 	        contextArray.push(obj);
 	        if (i.indexOf('Specific') === -1) {
 	          contextArray.push({
-	            '': {
-	              style: {
-	                backgroundColor: '#d5d2d2',
-	                height: '1px',
-	                margin: '1px',
-	                padding: '0px'
-	              }
-	            }
+	            divider: true,
+	            className: 'fc-dropdown-list-divider'
 	          });
 	        }
 	      }
 
-	      contextMenu.appendAsList(contextArray);
-
-	      this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
-	        var x = posx,
-	          y = posy,
-	          r = rad * 2,
-	          space = Math.round(r / 4),
-	          halfWidth = Math.round(r / 2) * 0.7,
-	          startX = (x - halfWidth),
-	          endX = (x + halfWidth),
-	          startY = (y + space),
-	          endY = (y - space);
-	        return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
-	      });
+	      contextMenu.add(contextArray);
 
 	      group.addSymbol(contextMenu);
 	      toolbar.addComponent(group);
+	      console.log(contextMenu);
 	      return toolbar;
 	    };
 
@@ -739,7 +871,7 @@
 	      if (width && height) {
 	        for (i = 0, ln = toolbars.length; i < ln; i++) {
 	          toolbar = toolbars[i];
-	          toolbar.draw(x, y);
+	          toolbar.draw(x, y, group);
 	        }
 	      }
 	    };

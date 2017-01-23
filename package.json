@@ -6,6 +6,7 @@
   "scripts": {
     "jsunit": "gulp test",
     "build": "gulp build",
+    "watch": "gulp watch",
     "docs": "gulp docs",
     "test": "gulp"
   },
