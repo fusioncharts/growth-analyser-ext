@@ -277,7 +277,7 @@
 
 	    preGrowthHook (val) {
 	      this.highlight(val);
-	      // this.updateAxisName(val);
+	      this.updateAxisName(val);
 	    }
 
 	    highlight (key, checkFlag) {

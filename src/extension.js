@@ -224,7 +224,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 
     preGrowthHook (val) {
       this.highlight(val);
-      // this.updateAxisName(val);
+      this.updateAxisName(val);
     }
 
     highlight (key, checkFlag) {

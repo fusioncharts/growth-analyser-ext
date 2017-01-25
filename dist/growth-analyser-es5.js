@@ -278,7 +278,7 @@
 	      key: 'preGrowthHook',
 	      value: function preGrowthHook(val) {
 	        this.highlight(val);
-	        // this.updateAxisName(val);
+	        this.updateAxisName(val);
 	      }
 	    }, {
 	      key: 'highlight',
