@@ -280,24 +280,37 @@
 	      this.updateAxisName(val);
 	    }
 
-	    highlight (key) {
+	    highlight (key, checkFlag) {
 	      let contextMenu = this.contextMenu,
-	        atomicLists = contextMenu && contextMenu.listContainerManager.container.atomicLists,
-	        i = atomicLists.length,
-	        j = 0,
-	        list = {},
-	        subList = {},
-	        noneFound = true;
-	      for (; i-- - 1;) {
-	        list = atomicLists[i];
+	        containers = contextMenu && contextMenu.dropDownMenu.containerData,
+	        i = containers.length,
+	        paper = this.graphics.paper,
+	        d3 = paper.getInstances().d3,
+	        container = {};
+	      for (; i--;) {
+	        container = containers[i].container.container;
+	        container.selectAll('div').each(function (d) {
+	          if (d.name && d.name.indexOf(key) + 1) {
+	            d3.select(this).classed('fc-dropdown-list-selected', true);
+	            // d.parentListItem.classed('fc-dropdown-list-selected', true);
+	            // if (d.parentListName) {
+	              // self.highlight(d.parentListName, true);
+	              // d.parentContainer.container.selectAll('div');
+	              // d3.select(this).classed('fc-dropdown-list-selected', true);
+	            // }
+	          } else {
+	            d3.select(this).classed('fc-dropdown-list-selected', false);
+	          }
+	        });
+	        /* list = containers[i];
 	        noneFound = true;
 	        if (list.name.indexOf(key) + 1) {
 	          list.node.style.fontWeight = 'bold';
 	        } else {
 	          list.node.style.fontWeight = '';
 	        }
-	        for (j = list.subConRef && list.subConRef.atomicLists.length || 0; j--;) {
-	          subList = list.subConRef.atomicLists[j];
+	        for (j = list.subConRef && list.subConRef.containers.length || 0; j--;) {
+	          subList = list.subConRef.containers[j];
 	          if (subList.name.indexOf(key) + 1) {
 	            subList.node.style.fontWeight = 'bold';
 	            list.node.style.fontWeight = 'bold';
@@ -308,6 +321,22 @@
 	          if (noneFound) {
 	            list.node.style.fontWeight = '';
 	          }
+	        } */
+	      }
+	    }
+
+	    addCssRules (classNames, styles) {
+	      var key,
+	        className,
+	        paper = this.graphics.paper;
+	      for (key in classNames) {
+	        className = classNames[key];
+	        switch (key) {
+	          case 'container':
+	            styles.container && paper.cssAddRule('.' + className, styles.container.style);
+	            break;
+	          case 'text':
+	            styles.text && paper.cssAddRule('.' + className, styles.text.style);
 	        }
 	      }
 	    }
@@ -320,7 +349,14 @@
 	        contextArray = [],
 	        gaOptionsObj = {},
 	        popup,
+	        key,
+	        dm,
+	        component,
+	        components,
+	        state,
+	        states,
 	        paper = this.graphics.paper,
+	        d3 = paper.getInstances().d3,
 	        chartContainer = this.graphics.container,
 	        userStyle = self.extData && self.extData.style || {},
 	        subCatStyle = {
@@ -329,18 +365,115 @@
 	          'font-family': '"Lucida Grande", Sans-serif'
 	        },
 	        catStyle = {
-	          'font-size': '13px',
+	          'font-size': '12px',
 	          'color': '#4b4b4b',
-	          'font-family': '"Lucida Grande", Sans-serif',
-	          'fontWeight': 'bold'
+	          'font-family': '"Lucida Grande", Sans-serif'
+	        },
+	        listItemSelectedStyle = {
+	          'font-weight': 'bold'
 	        },
 	        popupStyle = {
-	          'fontSize': 10 + 'px',
-	          'lineHeight': 15 + 'px',
+	          'font-size': 10 + 'px',
+	          'line-height': 15 + 'px',
 	          'font-family': '"Lucida Grande", Sans-serif',
 	          'stroke': '#676767',
 	          'stroke-width': '2'
+	        },
+	        header = {
+	          'font-size': '13px',
+	          'font-weight': 'bold',
+	          'color': '#4b4b4b',
+	          'font-family': '"Lucida Grande", Sans-serif'
+	        },
+	        divider = {
+	          backgroundColor: '#d5d2d2'
+	        },
+	        button = {
+	          height: 22,
+	          radius: 1,
+	          className: 'standard-period-selector',
+	          container: {
+	            style: {
+	              fill: '#FFFFFF',
+	              'stroke-width': '1px',
+	              stroke: '#CED5D4'
+	            }
+	          },
+	          symbol: {
+	            style: {
+	              'fill': '#4b4b4b'
+	            }
+	          },
+	          states: {
+	            hover: {
+	              className: 'standard-period-selector-state-hover',
+	              container: {
+	                style: {
+	                  'stroke-width': '1px',
+	                  stroke: '#6d6d6d',
+	                  cursor: 'pointer',
+	                  fill: '#d7d7d7'
+	                }
+	              }
+	            }
+	          }
+	        },
+	        dropDown = {
+	          container: {
+	            style: {
+	              background: '#fff',
+	              'border-color': '#898b8b',
+	              'border-radius': '1px',
+	              'border-style': 'solid',
+	              'border-width': '2px',
+	              'font-size': '11px',
+	              'font-family': '"Lucida Grande", sans-serif'
+	            }
+	          },
+	          listItem: {
+	            style: {},
+	            states: {
+	              hover: {
+	                className: 'fc-dropdown-list-item-hover',
+	                style: {
+	                  'background': '#e6e8e8',
+	                  'color': '#696969',
+	                  'cursor': 'pointer'
+	                }
+	              },
+	              selected: {
+	                className: 'fc-dropdown-list-item-hover',
+	                style: {
+	                  'background': '#898b8b',
+	                  'color': '#fff'
+	                }
+	              }
+	            }
+	          }
+	        },
+	        listItemStyles = {
+	          'fc-dropdown-list-item-cat': catStyle,
+	          'fc-dropdown-list-item-subcat': subCatStyle,
+	          'fc-dropdown-list-divider': divider,
+	          'fc-dropdown-list-header': header,
+	          'fc-dropdown-list-selected': listItemSelectedStyle
 	        };
+
+	      for (key in listItemStyles) {
+	        paper.cssAddRule('.' + key, listItemStyles[key]);
+	      }
+
+	      function symbolFn (x, y, width, height) {
+	        return {
+	          type: 'path',
+	          attrs: {
+	            d: ['M', x, y, ',', 'L', (x + width), y, 'M', x, (y + height / 2), ',', 'L', (x + width), (y + height / 2),
+	              'M', x, (y + height), ',', 'L', (x + width), (y + height)].join(' '),
+	            stroke: '#696969',
+	            'stroke-width': '2px'
+	          }
+	        };
+	      }
 
 	      userStyle.category = userStyle.category || {};
 	      userStyle.subCategory = userStyle.subCategory || {};
@@ -375,183 +508,230 @@
 
 	      gaOptionsObj = this.analyserOptionsObject;
 
-	      contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-	        paper: this.graphics.paper,
-	        chart: this.chart,
-	        smartLabel: this.smartLabel,
-	        chartContainer: this.graphics.container
-	      }, {
+	      contextMenu = d3.buttonWithContextMenu(symbolFn, this.graphics.container).setConfig({
 	        width: 24,
-	        height: 24,
+	        height: 22,
 	        position: 'right',
-	        stroke: '#ced5d4',
-	        strokeWidth: '1',
 	        radius: '1',
-	        symbolStroke: '#696969',
-	        symbolStrokeWidth: '2'
+	        className: button.className,
+	        states: {
+	          hover: button.states.hover.className
+	        },
+	        padding: {
+	          top: 6,
+	          bottom: 6,
+	          left: 6,
+	          right: 6
+	        }
 	      });
+
+	      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.getClassName()), button);
+	      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.config.states.hover), button.states.hover);
+	      dm = contextMenu.config.dropDownMenu;
+	      for (components in dm) {
+	        component = dm[components];
+	        switch (components) {
+	          case 'container':
+	            paper.cssAddRule('.' + component.className, dropDown.container.style);
+	            break;
+	          case 'listItem':
+	            paper.cssAddRule('.' + component.className, dropDown.listItem.style);
+	            states = component.states;
+	            for (state in states) {
+	              paper.cssAddRule('.' + states[state], dropDown.listItem.states[state].style);
+	            }
+	            break;
+	        }
+	      }
+	      // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
+	      //   paper: this.graphics.paper,
+	      //   chart: this.chart,
+	      //   smartLabel: this.smartLabel,
+	      //   chartContainer: this.graphics.container
+	      // }, {
+	      //   width: 24,
+	      //   height: 24,
+	      //   position: 'right',
+	      //   stroke: '#ced5d4',
+	      //   strokeWidth: '1',
+	      //   radius: '1',
+	      //   symbolStroke: '#696969',
+	      //   symbolStrokeWidth: '2'
+	      // });
 	      this.contextMenu = contextMenu;
 
 	      contextArray.push({
-	        'Show Growth Over': {
-	          style: catStyle
-	        }
+	        name: 'Show Growth Over',
+	        interactivity: false,
+	        className: 'fc-dropdown-list-header'
 	      });
+
 	      popup = function (callback) {
-	        var box,
-	          header,
+	        var box = document.createElement('div'),
 	          style = popupStyle,
+	          containerBox = document.createElement('div'),
+	          button = document.createElement('button'),
+	          input = document.createElement('input'),
+	          header = document.createElement('div'),
+	          title = document.createElement('div'),
+	          crossButton = document.createElement('button'),
+	          key,
+	          svgContainer,
+	          shadow,
 	          headerWidth = 180,
-	          headerText,
-	          cross,
-	          inputField,
-	          applyButton,
+	          onClickClose = function () {
+	            box.parentElement.removeChild(box);
+	            shadow.remove();
+	          },
+	          applyValue = function () {
+	            var value = input.value;
+	            onClickClose();
+	            callback(value);
+	          },
 	          chartWidth = self.chart && self.chart.width || 0,
 	          chartHeight = self.chart && self.chart.height || 0,
 	          x = (chartWidth / 2) - 90,
-	          y = (chartHeight / 2) - 40,
-	          shadow;
+	          y = (chartHeight / 2) - 40;
+	        // appending to box
+	        // style['font-family'] = '"Lucida Grande", sans-serif';
 
-	        shadow = paper.rect({
-	          x: 0,
-	          y: 0,
-	          width: chartWidth,
-	          height: chartHeight,
-	          fill: '#000',
-	          opacity: '0.35'
-	        });
+	        svgContainer = d3.select(chartContainer);
 
-	        box = paper.html('div', {
-	          fill: '#f7f7f7',
-	          x: x,
-	          y: y,
-	          width: 180,
-	          height: 80
-	        }, style, chartContainer);
+	        shadow = svgContainer.select('svg').append('rect')
+	                    .attr('x', 0)
+	                    .attr('y', 0)
+	                    .attr('width', chartWidth)
+	                    .attr('height', chartHeight)
+	                    .attr('fill', '#000')
+	                    .attr('opacity', '0.35');
 
-	        header = paper.html('div', {
-	          fill: '#e8e8e8',
-	          width: headerWidth,
-	          height: 20
-	        }, style, box);
+	        // chartContainer.appendChild(svgContainer);
+	        chartContainer.appendChild(box);
 
-	        headerText = paper.html('div', {
-	          fill: 'transparent',
-	          width: headerWidth * 0.6,
-	          height: 20,
-	          x: 10,
-	          y: 2
-	        }, style, header);
+	        box.unselectable = 'on';
+	        box.style.position = 'absolute';
+	        box.style.fill = '#f7f7f7';
+	        box.style.left = x + 'px';
+	        box.style.top = y + 'px';
+	        box.style.border = '1px solid rgb(212, 210, 211)';
+	        box.style.stroke = 'rgb(103, 103, 103)';
+	        box.style.width = headerWidth + 'px';
+	        box.style.backgroundColor = 'rgb(247, 247, 247)';
+	        box.style.height = 80 + 'px';
+	        box.style.fontFamily = '"Lucida Grande", sans-serif';
 
-	        headerText.attr({
-	          text: 'Provide value'
-	        });
-
-	        cross = paper.html('div', {
-	          fill: 'transparent',
-	          width: 10,
-	          height: 10,
-	          position: 'relative',
-	          float: 'right',
-	          text: 'X',
-	          cursor: 'pointer'
-	        }, style, header);
-
-	        cross.on('click', function () {
-	          box.hide();
-	          shadow.remove();
-	        });
-
-	        inputField = paper.html('input', {
-	          width: 100,
-	          height: 20,
-	          x: 10,
-	          y: 30
-	        }, style, box);
-
-	        applyButton = paper.html('div', {
-	          width: 50,
-	          height: 20,
-	          x: 120,
-	          y: 30,
-	          fill: '#555555'
-	        }, {
-	          fontSize: 10 + 'px',
-	          lineHeight: 15 + 'px',
-	          'font-family': '"Lucida Grande", Sans-serif',
-	          fill: '#eaeaea',
-	          color: '#eaeaea',
-	          stroke: '#eaeaea',
-	          cursor: 'pointer'
-	        }, box);
-
-	        function applyValue () {
-	          box.hide();
-	          shadow.remove();
-	          callback(inputField.val());
+	        for (key in style) {
+	          box.style[key] = style[key];
 	        }
-	        applyButton.on('click', () => {
-	          applyValue();
-	        });
-	        inputField.on('keyup', (e) => {
+
+	        crossButton.innerHTML = 'X';
+	        crossButton.style.paddingTop = '-3px';
+	        crossButton.type = 'button';
+	        crossButton.style.float = 'right';
+	        crossButton.style.display = 'inline';
+	        crossButton.style.marginTop = '-3px';
+	        crossButton.style.cursor = 'pointer';
+	        // crossButton.style.marginleft = '2px';
+	        crossButton.style.height = '21px';
+	        crossButton.style.lineHeight = '1';
+	        crossButton.style.width = '24px';
+	        crossButton.style.border = '2px solid rgb(203, 203, 203)';
+	        crossButton.style.backgroundColor = 'rgb(210, 210, 210)';
+	        crossButton.style.color = 'rgb(140, 140, 140)';
+	        crossButton.style.stroke = 'rgb(103, 103, 103)';
+
+	        crossButton.addEventListener('click', onClickClose);
+	        // title.style.padding = '5' + 'px';
+	        title.innerHTML = 'Provide Value';
+	        title.style.fontSize = '10px';
+	        title.style.display = 'inline-block';
+	        title.style.stroke = 'rgb(103, 103, 103)';
+	        title.style.width = (headerWidth - 50) + 'px';
+	        title.style.color = 'rgb(103, 103, 103)';
+
+	        // appending to header
+	        header.style.position = 'relative';
+	        header.style.paddingTop = '3px';
+	        header.style.paddingLeft = '11px';
+	        header.style.left = 0 + 'px';
+	        header.style.top = 0 + 'px';
+	        header.style.backgroundColor = 'rgb(232, 232, 232)';
+	        header.style.border = '1px solid rgb(212, 210, 211)';
+	        header.style.stroke = 'rgb(103, 103, 103)';
+	        header.style.width = (headerWidth - 12) + 'px';
+	        header.style.height = 18 + 'px';
+	        for (key in style) {
+	          header.style[key] = style[key];
+	        }
+
+	        input.style.width = '54%';
+	        input.style.height = '17px';
+	        input.style.border = '2px solid rgb(218, 219, 218)';
+	        input.style.stroke = 'rgb(103, 103, 103)';
+	        input.addEventListener('keyup', function (e) {
 	          if (e.keyCode === 13) {
 	            applyValue();
+	          } else {
+	            input.value = input.value.replace(/[^\d.-]/g, '');
 	          }
 	        });
-	        applyButton.attr({
-	          text: 'Apply'
+
+	        input.addEventListener('keydown', function (e) {
+	          input.value = input.value.replace(/[^\d.-]/g, '');
 	        });
-	        inputField.element.focus();
-	        function inputFieldNumberHandler () {
-	          inputField.element.value = inputField.element.value.replace(/[^\d.-]/g, '');
-	        }
-	        inputField.element.addEventListener('keyup', inputFieldNumberHandler);
-	        cross.element.style['position'] = 'relative';
-	        cross.element.style['backgroundColor'] = '#d2d2d2';
-	        cross.element.style['border'] = '2px solid #cbcbcb';
-	        cross.element.style['padding'] = '0px 0px 3.5px 2px';
-	        cross.element.style['color'] = '#8c8c8c';
-	        cross.element.style['margin'] = '1px 2px';
-	        cross.element.style['float'] = 'right';
-	        inputField.element.style['marginTop'] = '8px';
-	        inputField.element.style['border'] = '2px solid #dadbda';
-	        applyButton.element.style['marginTop'] = '8px';
-	        box.element.style['border'] = '1px solid #d4d2d3';
-	        header.element.style['border'] = '1px solid #d4d2d3';
-	        header.element.style['width'] = '179px';
-	        headerText.element.style['fontSize'] = '11.5px';
-	        headerText.element.style['marginTop'] = '0.5px';
-	        headerText.element.style['color'] = '#676767';
-	        header.element.style['font-family'] = '"Lucida Grande", Sans-serif';
-	        applyButton.element.style['textAlign'] = 'center';
-	        applyButton.element.style['fontSize'] = '11px';
-	        applyButton.element.style['paddingTop'] = '3px';
-	        applyButton.element.style['borderRadius'] = '3px';
-	        applyButton.element.style['color'] = '#e4e4e4';
+
+	        // click listener
+	        button.style.float = 'right';
+	        button.style.borderRadius = '1px';
+	        button.style.color = '#fff';
+	        button.style.background = '#555555';
+	        button.style.fontSize = '10px';
+	        button.style.borderRadius = '5px';
+	        button.style.border = '1px solid rgba(0,0,0,0.4)';
+	        button.style.height = '22px';
+	        button.style.width = '50px';
+	        button.style.cursor = 'pointer';
+
+	        button.addEventListener('click', applyValue);
+	        // input customization
+	        button.innerHTML = 'Apply';
+
+	        containerBox.style.textAlign = 'center';
+	        containerBox.style.paddingTop = '18px';
+	        containerBox.style.paddingRight = '10px';
+	        // appending to containerBox
+	        header.appendChild(title);
+	        header.appendChild(crossButton);
+	        containerBox.appendChild(input);
+	        containerBox.appendChild(button);
+
+	        // appending popup
+	        box.appendChild(header);
+	        box.appendChild(containerBox);
+	        input.focus();
 	      };
 
 	      // Pusing reset Button
 	      contextArray.push({
-	        '&nbsp; &nbsp; Reset View': {
-	          id: 'reset',
-	          handler: function () {
-	            self.analyser('reset');
-	            self.preGrowthHook('reset');
-	          },
-	          action: 'click',
-	          style: subCatStyle
-	        }
+	        name: 'Reset View',
+	        // className: 'fc-dropdown-list-divider',
+	        id: 'reset',
+	        className: 'fc-dropdown-list-item-cat',
+	        padding: {
+	          left: 20
+	        },
+	        handler: function () {
+	          self.analyser('reset');
+	          self.preGrowthHook('reset');
+	        },
+	        action: 'click'
 	      });
+
 	      contextArray.push({
-	        '': {
-	          id: 'reset',
-	          style: {
-	            backgroundColor: '#d5d2d2',
-	            height: '1px',
-	            margin: '1px',
-	            padding: '0px'
-	          }
-	        }
+	        id: 'reset',
+	        divider: true,
+	        interactivity: false,
+	        className: 'fc-dropdown-list-divider'
 	      });
 
 	      for (let i in gaOptionsObj) {
@@ -559,10 +739,14 @@
 	          obj = {},
 	          subObj = {};
 	        if (!gaOptionsObj[i].submenu) {
-	          key = '&nbsp; &nbsp; ' + i;
-	          obj[key] = {};
-	          obj[key] = {
-	            style: subCatStyle,
+	          key = i;
+	          // obj[key] = {};
+	          obj = {
+	            name: key,
+	            className: 'fc-dropdown-list-item-cat',
+	            padding: {
+	              left: 20
+	            },
 	            handler: function () {
 	              self.analyser(gaOptionsObj[i]);
 	              self.preGrowthHook(i);
@@ -570,11 +754,16 @@
 	            action: 'click'
 	          };
 	        } else {
-	          key = '&#9666&nbsp; ' + i;
-	          obj[key] = {};
-	          obj[key].action = 'click';
-	          obj[key].style = subCatStyle;
-	          obj[key].handler = [];
+	          obj = {};
+	          key = i;
+	          obj.name = key;
+	          obj.action = 'click';
+	          // obj.style = subCatStyle;
+	          obj.className = 'fc-dropdown-list-item-cat';
+	          obj.handler = [];
+	          obj.padding = {
+	            left: 20
+	          };
 	          for (let j in gaOptionsObj[i]) {
 	            let subMenuName = j,
 	              subMenuValue = gaOptionsObj[i][j];
@@ -582,8 +771,10 @@
 	              continue;
 	            }
 	            subObj = {};
-	            subObj['&nbsp;' + subMenuName] = {};
-	            subObj['&nbsp;' + subMenuName].handler = function () {
+	            subObj.className = 'fc-dropdown-list-item-subcat';
+	            subObj.parentListName = i;
+	            subObj.name = subMenuName;
+	            subObj.handler = function () {
 	              if (typeof subMenuValue === 'function') {
 	                subMenuValue(popup);
 	              } else {
@@ -591,19 +782,14 @@
 	                self.preGrowthHook(subMenuName);
 	              }
 	            };
-	            subObj['&nbsp;' + subMenuName].action = 'click';
-	            subObj['&nbsp;' + subMenuName].style = subCatStyle;
-	            obj[key].handler.push(subObj);
+	            subObj.action = 'click';
+	            subObj.style = subCatStyle;
+	            obj.handler.push(subObj);
 	            if (j.indexOf('Custom') === -1) {
-	              obj[key].handler.push({
-	                '': {
-	                  style: {
-	                    backgroundColor: '#d5d2d2',
-	                    height: '1px',
-	                    margin: '1px',
-	                    padding: '0px'
-	                  }
-	                }
+	              obj.handler.push({
+	                divider: true,
+	                interactivity: false,
+	                className: 'fc-dropdown-list-divider'
 	              });
 	            }
 	          }
@@ -611,32 +797,13 @@
 	        contextArray.push(obj);
 	        if (i.indexOf('Specific') === -1) {
 	          contextArray.push({
-	            '': {
-	              style: {
-	                backgroundColor: '#d5d2d2',
-	                height: '1px',
-	                margin: '1px',
-	                padding: '0px'
-	              }
-	            }
+	            divider: true,
+	            className: 'fc-dropdown-list-divider'
 	          });
 	        }
 	      }
 
-	      contextMenu.appendAsList(contextArray);
-
-	      this.SymbolStore.register('ContextIcon', function (posx, posy, rad) {
-	        var x = posx,
-	          y = posy,
-	          r = rad * 2,
-	          space = Math.round(r / 4),
-	          halfWidth = Math.round(r / 2) * 0.7,
-	          startX = (x - halfWidth),
-	          endX = (x + halfWidth),
-	          startY = (y + space),
-	          endY = (y - space);
-	        return ['M', startX, y, 'L', endX, y, 'M', startX, startY, 'L', endX, startY, 'M', startX, endY, 'L', endX, endY];
-	      });
+	      contextMenu.add(contextArray);
 
 	      group.addSymbol(contextMenu);
 	      toolbar.addComponent(group);
@@ -739,7 +906,7 @@
 	      if (width && height) {
 	        for (i = 0, ln = toolbars.length; i < ln; i++) {
 	          toolbar = toolbars[i];
-	          toolbar.draw(x, y);
+	          toolbar.draw(x, y, group);
 	        }
 	      }
 	    };
