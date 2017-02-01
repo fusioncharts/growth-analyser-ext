@@ -815,6 +815,7 @@
 
 	        group.addSymbol(contextMenu);
 	        toolbar.addComponent(group);
+	        this.growthOverMode();
 	        return toolbar;
 	      }
 	    }, {
@@ -909,7 +910,7 @@
 	            i,
 	            toolbar;
 	        // Setting initial growth mode
-	        this.growthOverMode();
+	        // this.growthOverMode();
 	        x = x === undefined ? measurement.x : x;
 	        y = y === undefined ? measurement.y : y;
 	        width = width === undefined ? measurement.width : width;
