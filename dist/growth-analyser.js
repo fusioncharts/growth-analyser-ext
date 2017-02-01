@@ -467,8 +467,8 @@
 	        return {
 	          type: 'path',
 	          attrs: {
-	            d: ['M', x, y, ',', 'L', (x + width), y, 'M', x, (y + height / 2), ',', 'L', (x + width), (y + height / 2),
-	              'M', x, (y + height), ',', 'L', (x + width), (y + height)].join(' '),
+	            d: ['M', x, y, 'L', (x + width), y, 'M', x, (y + height / 2), 'L', (x + width), (y + height / 2),
+	              'M', x, (y + height), 'L', (x + width), (y + height)].join(' '),
 	            stroke: '#696969',
 	            'stroke-width': '2px'
 	          }
