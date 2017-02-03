@@ -920,6 +920,11 @@
 /***/ function(module, exports) {
 
 	'use strict';
+	// Polyfill for Number.isFinite
+	Number.isFinite = Number.isFinite || function (value) {
+	  return typeof value === 'number' && isFinite(value);
+	};
+
 	class GrowthAnalyser {
 	  constructor (data) {
 	    this.data = data.map((a) => {
