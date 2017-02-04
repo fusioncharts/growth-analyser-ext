@@ -372,9 +372,10 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
               'border-color': '#898b8b',
               'border-radius': '1px',
               'border-style': 'solid',
-              'border-width': '2px',
+              'border-width': '1px',
               'font-size': '11px',
-              'font-family': '"Lucida Grande", sans-serif'
+              'font-family': '"Lucida Grande", sans-serif',
+              'box-shadow': 'rgb(153, 153, 153) 0px 0px 5px'
             }
           },
           listItem: {
@@ -383,13 +384,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
               hover: {
                 className: 'fc-dropdown-list-item-hover',
                 style: {
-                  'background': '#e6e8e8',
+                  'background': '#e7e8e8',
                   'color': '#696969',
                   'cursor': 'pointer'
                 }
               },
               selected: {
-                className: 'fc-dropdown-list-item-hover',
+                className: 'fc-dropdown-list-item-selected',
                 style: {
                   'background': '#898b8b',
                   'color': '#fff'
