@@ -84,12 +84,16 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       // Changing y Axis formattor
       if (mode === 'reset' || !nStoreArr.changed) {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
-          return arg.numberFormatter.yAxis(val);
+          var numberFormatter = arg.numberFormatter;
+          return  numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix;
+          // return arg.numberFormatter.yAxis(val);
         };
         self.contextMenu && self.contextMenu.hideListItem('reset');
       } else {
         yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
-          return arg.numberFormatter.yAxis(val) + '%';
+          var numberFormatter = arg.numberFormatter;
+          return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix + '%';
+          // return arg.numberFormatter.yAxis(val) + '%';
         };
         self.contextMenu && self.contextMenu.showListItem('reset');
       }
