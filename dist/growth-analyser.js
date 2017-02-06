@@ -138,7 +138,7 @@
 	      if (mode === 'reset' || !nStoreArr.changed) {
 	        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
 	          var numberFormatter = arg.numberFormatter;
-	          return  numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix;
+	          return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix;
 	          // return arg.numberFormatter.yAxis(val);
 	        };
 	        self.contextMenu && self.contextMenu.hideListItem('reset');
@@ -670,9 +670,11 @@
 	        }
 
 	        input.style.width = '54%';
-	        input.style.height = '17px';
+	        input.style.height = '20px';
 	        input.style.border = '2px solid rgb(218, 219, 218)';
 	        input.style.stroke = 'rgb(103, 103, 103)';
+	        input.style.margin = '0px';
+	        input.style['font-size'] = '13px';
 	        input.addEventListener('keyup', function (e) {
 	          if (e.keyCode === 13) {
 	            applyValue();
