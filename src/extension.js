@@ -793,14 +793,15 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         posWrtCanvas = config.posWrtCanvas || 'top',
         layout = config.layout || 'inline',
         alignment = config.alignment || 'right',
-        orientation = config.orientation || 'horizontal';
+        orientation = config.orientation || 'horizontal',
+        ref = config.ref;
       self.padding = 5;
       self.spaceManagerInstance.add([{
         name: function () {
-          return 'ToolBoxExt';
+          return 'GrowthAnalyserExt';
         },
         ref: function (obj) {
-          return obj.chart;
+          return ref === undefined ? obj.chart : ref;
         },
         self: function () {
           return self;

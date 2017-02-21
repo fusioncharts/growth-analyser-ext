@@ -856,14 +856,15 @@
 	            posWrtCanvas = config.posWrtCanvas || 'top',
 	            _layout = config.layout || 'inline',
 	            alignment = config.alignment || 'right',
-	            orientation = config.orientation || 'horizontal';
+	            orientation = config.orientation || 'horizontal',
+	            _ref = config.ref;
 	        _self.padding = 5;
 	        _self.spaceManagerInstance.add([{
 	          name: function name() {
-	            return 'ToolBoxExt';
+	            return 'GrowthAnalyserExt';
 	          },
 	          ref: function ref(obj) {
-	            return obj.chart;
+	            return _ref === undefined ? obj.chart : _ref;
 	          },
 	          self: function self() {
 	            return _self;
