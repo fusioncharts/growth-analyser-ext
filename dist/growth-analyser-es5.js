@@ -863,7 +863,7 @@
 	            return 'ToolBoxExt';
 	          },
 	          ref: function ref(obj) {
-	            return obj['0'];
+	            return obj.chart;
 	          },
 	          self: function self() {
 	            return _self;
@@ -893,7 +893,7 @@
 	              }]
 	            }]
 	          }]
-	        }]);
+	        }], Object.keys(this.chartInstance.apiInstance.getComponentStore().getAllCanvas()).length);
 	      }
 	    }, {
 	      key: 'setDrawingConfiguration',

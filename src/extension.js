@@ -800,7 +800,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           return 'ToolBoxExt';
         },
         ref: function (obj) {
-          return obj['0'];
+          return obj.chart;
         },
         self: function () {
           return self;
@@ -830,7 +830,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
             }]
           }]
         }]
-      }]);
+      }], Object.keys(this.chartInstance.apiInstance.getComponentStore().getAllCanvas()).length);
     };
 
     setDrawingConfiguration (x, y, width, height, group) {
