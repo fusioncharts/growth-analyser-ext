@@ -155,6 +155,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           'smartLabel',
           'chartInstance',
           'extData',
+          'chartMenu',
           function acquire () {
             let i = 0,
               ii = requiredParams.length - 1,
@@ -315,27 +316,28 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       }
     }
 
-    addCssRules (classNames, styles) {
-      var key,
-        className,
-        paper = this.graphics.paper;
-      for (key in classNames) {
-        className = classNames[key];
-        switch (key) {
-          case 'container':
-            styles.container &amp;&amp; paper.cssAddRule('.' + className, styles.container.style);
-            break;
-          case 'text':
-            styles.text &amp;&amp; paper.cssAddRule('.' + className, styles.text.style);
-        }
-      }
-    }
+    // addCssRules (classNames, styles) {
+    //   var key,
+    //     className,
+    //     paper = this.graphics.paper;
+    //   for (key in classNames) {
+    //     className = classNames[key];
+    //     switch (key) {
+    //       case 'container':
+    //         styles.container &amp;&amp; paper.cssAddRule('.' + className, styles.container.style);
+    //         break;
+    //       case 'text':
+    //         styles.text &amp;&amp; paper.cssAddRule('.' + className, styles.text.style);
+    //     }
+    //   }
+    // }
 
     createToolbar () {
+      debugger;
       var toolbar,
         group,
         self = this,
-        contextMenu,
+        contextMenu = this.chartMenu,
         contextArray = [],
         gaOptionsObj = {},
         popup,
@@ -378,70 +380,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         divider = {
           backgroundColor: '#d5d2d2'
         },
-        button = {
-          height: 22,
-          radius: 1,
-          className: 'standard-period-selector',
-          container: {
-            style: {
-              fill: '#FFFFFF',
-              'stroke-width': '1px',
-              stroke: '#CED5D4'
-            }
-          },
-          symbol: {
-            style: {
-              'fill': '#4b4b4b'
-            }
-          },
-          states: {
-            hover: {
-              className: 'standard-period-selector-state-hover',
-              container: {
-                style: {
-                  'stroke-width': '1px',
-                  stroke: '#6d6d6d',
-                  cursor: 'pointer',
-                  fill: '#d7d7d7'
-                }
-              }
-            }
-          }
-        },
-        dropDown = {
-          container: {
-            style: {
-              background: '#fff',
-              'border-color': '#898b8b',
-              'border-radius': '1px',
-              'border-style': 'solid',
-              'border-width': '1px',
-              'font-size': '11px',
-              'font-family': '"Lucida Grande", sans-serif',
-              'box-shadow': 'rgb(153, 153, 153) 0px 0px 5px'
-            }
-          },
-          listItem: {
-            style: {},
-            states: {
-              hover: {
-                className: 'fc-dropdown-list-item-hover',
-                style: {
-                  'background': '#e7e8e8',
-                  'color': '#696969',
-                  'cursor': 'pointer'
-                }
-              },
-              selected: {
-                className: 'fc-dropdown-list-item-selected',
-                style: {
-                  'background': '#898b8b',
-                  'color': '#fff'
-                }
-              }
-            }
-          }
-        },
         listItemStyles = {
           'fc-dropdown-list-item-cat': catStyle,
           'fc-dropdown-list-item-subcat': subCatStyle,
@@ -454,18 +392,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         paper.cssAddRule('.' + key, listItemStyles[key]);
       }
 
-      function symbolFn (x, y, width, height) {
-        return {
-          type: 'path',
-          attrs: {
-            d: ['M', x, y, 'L', (x + width), y, 'M', x, (y + height / 2), 'L', (x + width), (y + height / 2),
-              'M', x, (y + height), 'L', (x + width), (y + height)].join(' '),
-            stroke: '#696969',
-            'stroke-width': '2px'
-          }
-        };
-      }
-
       userStyle.category = userStyle.category || {};
       userStyle.subCategory = userStyle.subCategory || {};
       userStyle.popup = userStyle.popup || {};
@@ -473,84 +399,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       Object.assign(subCatStyle, userStyle.subCategory);
       Object.assign(popupStyle, userStyle.popup);
 
-      toolbar = new this.HorizontalToolbar({
-        paper: this.graphics.paper,
-        chart: this.chart,
-        smartLabel: this.smartLabel,
-        chartContainer: this.graphics.container
-      });
-
-      toolbar.setConfig({
-        fill: '#fff',
-        borderThickness: 0
-      });
-
-      group = new this.toolbox.ComponentGroup({
-        paper: this.graphics.paper,
-        chart: this.chart,
-        smartLabel: this.smartLabel,
-        chartContainer: this.graphics.container
-      });
-
-      group.setConfig({
-        fill: '#fff',
-        borderThickness: 0
-      });
-
       gaOptionsObj = this.analyserOptionsObject;
-
-      contextMenu = d3.buttonWithContextMenu(symbolFn, this.graphics.container).setConfig({
-        width: 24,
-        height: 22,
-        position: 'right',
-        radius: '1',
-        className: button.className,
-        states: {
-          hover: button.states.hover.className
-        },
-        padding: {
-          top: 6,
-          bottom: 6,
-          left: 6,
-          right: 6
-        }
-      });
-
-      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.getClassName()), button);
-      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.config.states.hover), button.states.hover);
-      dm = contextMenu.config.dropDownMenu;
-      for (components in dm) {
-        component = dm[components];
-        switch (components) {
-          case 'container':
-            paper.cssAddRule('.' + component.className, dropDown.container.style);
-            break;
-          case 'listItem':
-            paper.cssAddRule('.' + component.className, dropDown.listItem.style);
-            states = component.states;
-            for (state in states) {
-              paper.cssAddRule('.' + states[state], dropDown.listItem.states[state].style);
-            }
-            break;
-        }
-      }
-      // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-      //   paper: this.graphics.paper,
-      //   chart: this.chart,
-      //   smartLabel: this.smartLabel,
-      //   chartContainer: this.graphics.container
-      // }, {
-      //   width: 24,
-      //   height: 24,
-      //   position: 'right',
-      //   stroke: '#ced5d4',
-      //   strokeWidth: '1',
-      //   radius: '1',
-      //   symbolStroke: '#696969',
-      //   symbolStrokeWidth: '2'
-      // });
-      this.contextMenu = contextMenu;
-
       contextArray.push({
         name: 'Show Growth Over',
         interactivity: false,
@@ -796,35 +645,33 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         }
       }
 
-      contextMenu.add(contextArray);
+      contextMenu.appendList(contextArray);
 
-      group.addSymbol(contextMenu);
-      toolbar.addComponent(group);
       this.growthOverMode();
       return toolbar;
     };
 
-    getLogicalSpace (availableWidth, availableHeight) {
-      availableWidth /= 2;
-      var logicalSpace,
-        width = 0,
-        height = 0,
-        i,
-        ln;
+    // getLogicalSpace (availableWidth, availableHeight) {
+    //   availableWidth /= 2;
+    //   var logicalSpace,
+    //     width = 0,
+    //     height = 0,
+    //     i,
+    //     ln;
 
-      for (i = 0, ln = this.toolbars.length; i &lt; ln; i++) {
-        logicalSpace = this.toolbars[i].getLogicalSpace(availableWidth, availableHeight);
-        width = Math.max(logicalSpace.width, width);
-        height += logicalSpace.height;
-        this.toolbars[i].width = logicalSpace.width;
-        this.toolbars[i].height = logicalSpace.height;
-      }
-      height += this.padding;
-      return {
-        width: width > availableWidth ? 0 : width,
-        height: height > availableHeight ? 0 : height
-      };
-    };
+    //   for (i = 0, ln = this.toolbars.length; i &lt; ln; i++) {
+    //     logicalSpace = this.toolbars[i].getLogicalSpace(availableWidth, availableHeight);
+    //     width = Math.max(logicalSpace.width, width);
+    //     height += logicalSpace.height;
+    //     this.toolbars[i].width = logicalSpace.width;
+    //     this.toolbars[i].height = logicalSpace.height;
+    //   }
+    //   height += this.padding;
+    //   return {
+    //     width: width > availableWidth ? 0 : width,
+    //     height: height > availableHeight ? 0 : height
+    //   };
+    // };
 
     placeInCanvas () {
       var self = this,
@@ -873,38 +720,38 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       }], Object.keys(this.chartInstance.apiInstance.getComponentStore().getAllCanvas()).length);
     };
 
-    setDrawingConfiguration (x, y, width, height, group) {
-      var mes = this.measurement;
-      mes.x = x;
-      mes.y = y;
-      mes.width = width;
-      mes.height = height;
+    // setDrawingConfiguration (x, y, width, height, group) {
+    //   var mes = this.measurement;
+    //   mes.x = x;
+    //   mes.y = y;
+    //   mes.width = width;
+    //   mes.height = height;
 
-      this.parentGroup = group;
+    //   this.parentGroup = group;
 
-      return this;
-    };
+    //   return this;
+    // };
 
-    draw (x, y, width, height, group) {
-      var measurement = this.measurement,
-        toolbars = this.toolbars,
-        ln,
-        i,
-        toolbar;
-      // Setting initial growth mode
-      // this.growthOverMode();
-      x = x === undefined ? measurement.x : x;
-      y = y === undefined ? measurement.y : y;
-      width = width === undefined ? measurement.width : width;
-      height = height === undefined ? measurement.height : height;
-      group = group === undefined ? this.parentGroup : group;
-      if (width &amp;&amp; height) {
-        for (i = 0, ln = toolbars.length; i &lt; ln; i++) {
-          toolbar = toolbars[i];
-          toolbar.draw(x, y, group);
-        }
-      }
-    };
+    // draw (x, y, width, height, group) {
+    //   var measurement = this.measurement,
+    //     toolbars = this.toolbars,
+    //     ln,
+    //     i,
+    //     toolbar;
+    //   // Setting initial growth mode
+    //   // this.growthOverMode();
+    //   x = x === undefined ? measurement.x : x;
+    //   y = y === undefined ? measurement.y : y;
+    //   width = width === undefined ? measurement.width : width;
+    //   height = height === undefined ? measurement.height : height;
+    //   group = group === undefined ? this.parentGroup : group;
+    //   if (width &amp;&amp; height) {
+    //     for (i = 0, ln = toolbars.length; i &lt; ln; i++) {
+    //       toolbar = toolbars[i];
+    //       toolbar.draw(x, y, group);
+    //     }
+    //   }
+    // };
   };
   FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
 }]);
@@ -920,7 +767,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Feb 21 2017 19:19:53 GMT+0530 (IST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Mar 22 2017 20:05:03 GMT+0530 (IST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

@@ -2,65 +2,52 @@ const GrowthAnalyser = require('./growthanalyser');
 
 FusionCharts.register('extension', ['private', 'growth-analyser', function () {
   class GrowthAnalyserExt {
-    /**
-    * An extension for FusionTime XT charts.
-    * Helps to analyse growth of data based on posisitions
-    * specific formulae and custom values.
-    * Growth analyser supports pre analysis of data
-    * which can be provided in chart configuration
-    * @example
-    * {
-    *   datasource: {
-    *     extensions: {
-    *       'growth-analyser': {
-    *         'growthOver': 'firstIndex'
-    *        }
-    *     }
-    *   }
-    * }
-    *
-    * Available 'growthOver' options are 'firstIndex', 'prevIndex', 'Minimum', 'Maximum',
-    * 'Average', 'Median' & 'Standard Deviation'.
-    */
+
     constructor () {
       var self = this;
       this.toolbox = FusionCharts.getComponent('api', 'toolbox');
       this.HorizontalToolbar = this.toolbox.HorizontalToolbar;
       this.ComponentGroup = this.toolbox.ComponentGroup;
       this.SymbolStore = this.toolbox.SymbolStore;
+      // configure the options
       this.analyserOptionsObject = {
-        'First Data': {position: 0},
-        'Previous Data': {relposition: -1},
-        'Specific Value': {
-          'submenu': true,
-          'Minimum': 'Minimum',
-          'Maximum': 'Maximum',
-          'Average': 'Mean',
-          'Median': 'Median',
-          'Standard Deviation': 'Standard Deviation',
-          'Custom Value...': (fn) => {
-            fn((val) => {
-              self.currentValue = val + '';
-              self.analyser(val);
-              self.preGrowthHook('Custom');
-            });
-          }
+        'Previous Data': {
+          relposition: -1
+        },
+        'Specific Value': (val, index) => {
+          self.currentValue = `${val}`;
+          self.analyser(val, index);
+          self.preGrowthHook('Custom', index);
+        },
+        'First Data': (val, index) => {
+          self.currentValue = val;
+          self.analyser(val, index);
+          self.preGrowthHook('Custom', index);
+        },
+        'Statistical Value': (val, index) => {
+          self.currentValue = val;
+          self.analyser(val, index);
+          self.preGrowthHook('Custom', index);
         }
       };
     }
 
-    analyser (mode) {
+    analyser (mode, index) {
       var self = this,
         ga = this.ga || {},
         store = this.tsObject.apiInstance.getComponentStore(),
-        canvas = store.getCanvasByIndex(0),
+        canvas = store.getCanvasByIndex(index), // index should be changed
         comp = canvas.getComposition(),
-        ds = ga.ds || comp.dataset,
+        ds = /* ga.ds || */ comp.dataset,
         i,
-        idMap = ga.idMap || {},
-        storeAr = ga.storeAr || [],
+        idMap = /* ga.idMap || */ {},
+        storeAr = /* ga.storeAr || */ [],
         nStoreArr = [],
-        yAxis = canvas.composition.yAxis;
+        yAxis = canvas.composition.yAxis,
+        canvasGroups = store.getAllCanvas(),
+        cogWheel = canvasGroups[index].composition.impl.getMenu();
+
+      self.contextMenu = cogWheel._contextMenu;
       // Declaration ends
       this.ga = ga;
       if (!ga.storeAr) {
@@ -80,21 +67,28 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
           ga.gAnalyser = new GrowthAnalyser(storeAr);
         }
       }
+      // get desired result with specific mode
       nStoreArr = ga.gAnalyser.analyse(mode);
       // Changing y Axis formattor
       if (mode === 'reset' || !nStoreArr.changed) {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
-          var numberFormatter = arg.numberFormatter;
-          return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix;
-          // return arg.numberFormatter.yAxis(val);
-        };
+        yAxis.getScaleObj()
+          .getIntervalObj()
+          .getConfig('intervals')
+          .major.formatter = function (val, arg) {
+            var numberFormatter = arg.numberFormatter;
+            return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix;
+            // return arg.numberFormatter.yAxis(val);
+          };
         self.contextMenu && self.contextMenu.hideListItem('reset');
       } else {
-        yAxis.getScaleObj().getIntervalObj().getConfig('intervals').major.formatter = function (val, arg) {
-          var numberFormatter = arg.numberFormatter;
-          return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix + '%';
-          // return arg.numberFormatter.yAxis(val) + '%';
-        };
+        yAxis.getScaleObj()
+          .getIntervalObj()
+          .getConfig('intervals')
+          .major.formatter = function (val, arg) {
+            var numberFormatter = arg.numberFormatter;
+            return numberFormatter.prefix + numberFormatter.formatter.format(val) + numberFormatter.suffix + '%';
+            // return arg.numberFormatter.yAxis(val) + '%';
+          };
         self.contextMenu && self.contextMenu.showListItem('reset');
       }
       // Update data
@@ -124,7 +118,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
               param = requiredParams[i];
               instance[param] = arguments[i];
             }
-          }];
+          }
+        ];
       require(requiredParams);
       this.spaceManagerInstance = instance.spaceManagerInstance;
       this.globalReactiveModel = instance.globalReactiveModel;
@@ -135,6 +130,11 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       this.endDataset = instance.globalReactiveModel.model['x-axis-absolute-range-end'];
       this.toolbars = [];
       this.measurement = {};
+
+      return this;
+    };
+
+    configure () {
       this.toolbars.push(this.createToolbar());
       return this;
     };
@@ -168,10 +168,14 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         self.preGrowthHook('Custom');
       } else if (growthOver === 'firstIndex') {
         self.preGrowthHook('First');
-        self.analyser({position: 0});
+        self.analyser({
+          position: 0
+        });
       } else if (growthOver === 'prevIndex') {
         self.preGrowthHook('Previous');
-        self.analyser({relposition: -1});
+        self.analyser({
+          relposition: -1
+        });
       } else {
         self.preGrowthHook(growthOver);
         self.analyser(growthOver);
@@ -216,6 +220,7 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       } else {
         changeAxis(origAxisName);
       }
+
       function changeAxis (val) {
         if (!origAxisName) {
           return;
@@ -226,69 +231,34 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       }
     }
 
-    preGrowthHook (val) {
-      this.highlight(val);
-      this.updateAxisName(val);
+    preGrowthHook (val, index) {
+      this.highlight(val, index);
+      // this.updateAxisName(val,index);
     }
 
-    highlight (key, checkFlag) {
-      let contextMenu = this.contextMenu,
+    highlight (key, index) {
+      let componentStore = this.chartInstance.apiInstance.getComponentStore(),
+        canvasGroups = componentStore.getAllCanvas(),
+        cogWheel = canvasGroups[index].composition.impl.getMenu(),
+        contextMenu = cogWheel._contextMenu,
         containers = contextMenu && contextMenu.dropDownMenu.containerData,
         i = containers.length,
         paper = this.graphics.paper,
-        d3 = paper.getInstances().d3,
+        d3 = paper.getInstances()
+        .d3,
         container = {};
       for (; i--;) {
         container = containers[i].container.container;
-        container.selectAll('div').each(function (d) {
-          if (d.name && d.name.indexOf(key) + 1) {
-            d3.select(this).classed('fc-dropdown-list-selected', true);
-            // d.parentListItem.classed('fc-dropdown-list-selected', true);
-            // if (d.parentListName) {
-              // self.highlight(d.parentListName, true);
-              // d.parentContainer.container.selectAll('div');
-              // d3.select(this).classed('fc-dropdown-list-selected', true);
-            // }
-          } else {
-            d3.select(this).classed('fc-dropdown-list-selected', false);
-          }
-        });
-        /* list = containers[i];
-        noneFound = true;
-        if (list.name.indexOf(key) + 1) {
-          list.node.style.fontWeight = 'bold';
-        } else {
-          list.node.style.fontWeight = '';
-        }
-        for (j = list.subConRef && list.subConRef.containers.length || 0; j--;) {
-          subList = list.subConRef.containers[j];
-          if (subList.name.indexOf(key) + 1) {
-            subList.node.style.fontWeight = 'bold';
-            list.node.style.fontWeight = 'bold';
-            noneFound = false;
-          } else {
-            subList.node.style.fontWeight = '';
-          }
-          if (noneFound) {
-            list.node.style.fontWeight = '';
-          }
-        } */
-      }
-    }
-
-    addCssRules (classNames, styles) {
-      var key,
-        className,
-        paper = this.graphics.paper;
-      for (key in classNames) {
-        className = classNames[key];
-        switch (key) {
-          case 'container':
-            styles.container && paper.cssAddRule('.' + className, styles.container.style);
-            break;
-          case 'text':
-            styles.text && paper.cssAddRule('.' + className, styles.text.style);
-        }
+        container.selectAll('div')
+          .each(function (d) {
+            if (d.name && d.name.indexOf(key) + 1) {
+              d3.select(this)
+                .classed('fc-dropdown-list-selected', true);
+            } else {
+              d3.select(this)
+                .classed('fc-dropdown-list-selected', false);
+            }
+          });
       }
     }
 
@@ -296,10 +266,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       var toolbar,
         group,
         self = this,
-        contextMenu,
+        contextMenu = this.chartMenu,
         contextArray = [],
+        contextArrayX,
         gaOptionsObj = {},
-        popup,
+        createPopUp,
+        getIntervals,
+        iterate,
         key,
         dm,
         component,
@@ -307,9 +280,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         state,
         states,
         paper = this.graphics.paper,
-        d3 = paper.getInstances().d3,
+        d3 = paper.getInstances()
+        .d3,
         chartContainer = this.graphics.container,
         userStyle = self.extData && self.extData.style || {},
+        componentStore = this.chartInstance.apiInstance.getComponentStore(),
+        canvasGroups = componentStore.getAllCanvas(),
+        // style attrs
         subCatStyle = {
           'font-size': '12px',
           'color': '#696969',
@@ -339,70 +316,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         divider = {
           backgroundColor: '#d5d2d2'
         },
-        button = {
-          height: 22,
-          radius: 1,
-          className: 'standard-period-selector',
-          container: {
-            style: {
-              fill: '#FFFFFF',
-              'stroke-width': '1px',
-              stroke: '#CED5D4'
-            }
-          },
-          symbol: {
-            style: {
-              'fill': '#4b4b4b'
-            }
-          },
-          states: {
-            hover: {
-              className: 'standard-period-selector-state-hover',
-              container: {
-                style: {
-                  'stroke-width': '1px',
-                  stroke: '#6d6d6d',
-                  cursor: 'pointer',
-                  fill: '#d7d7d7'
-                }
-              }
-            }
-          }
-        },
-        dropDown = {
-          container: {
-            style: {
-              background: '#fff',
-              'border-color': '#898b8b',
-              'border-radius': '1px',
-              'border-style': 'solid',
-              'border-width': '1px',
-              'font-size': '11px',
-              'font-family': '"Lucida Grande", sans-serif',
-              'box-shadow': 'rgb(153, 153, 153) 0px 0px 5px'
-            }
-          },
-          listItem: {
-            style: {},
-            states: {
-              hover: {
-                className: 'fc-dropdown-list-item-hover',
-                style: {
-                  'background': '#e7e8e8',
-                  'color': '#696969',
-                  'cursor': 'pointer'
-                }
-              },
-              selected: {
-                className: 'fc-dropdown-list-item-selected',
-                style: {
-                  'background': '#898b8b',
-                  'color': '#fff'
-                }
-              }
-            }
-          }
-        },
         listItemStyles = {
           'fc-dropdown-list-item-cat': catStyle,
           'fc-dropdown-list-item-subcat': subCatStyle,
@@ -415,18 +328,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         paper.cssAddRule('.' + key, listItemStyles[key]);
       }
 
-      function symbolFn (x, y, width, height) {
-        return {
-          type: 'path',
-          attrs: {
-            d: ['M', x, y, 'L', (x + width), y, 'M', x, (y + height / 2), 'L', (x + width), (y + height / 2),
-              'M', x, (y + height), 'L', (x + width), (y + height)].join(' '),
-            stroke: '#696969',
-            'stroke-width': '2px'
-          }
-        };
-      }
-
       userStyle.category = userStyle.category || {};
       userStyle.subCategory = userStyle.subCategory || {};
       userStyle.popup = userStyle.popup || {};
@@ -434,131 +335,135 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
       Object.assign(subCatStyle, userStyle.subCategory);
       Object.assign(popupStyle, userStyle.popup);
 
-      toolbar = new this.HorizontalToolbar({
-        paper: this.graphics.paper,
-        chart: this.chart,
-        smartLabel: this.smartLabel,
-        chartContainer: this.graphics.container
-      });
-
-      toolbar.setConfig({
-        fill: '#fff',
-        borderThickness: 0
-      });
-
-      group = new this.toolbox.ComponentGroup({
-        paper: this.graphics.paper,
-        chart: this.chart,
-        smartLabel: this.smartLabel,
-        chartContainer: this.graphics.container
-      });
-
-      group.setConfig({
-        fill: '#fff',
-        borderThickness: 0
-      });
-
       gaOptionsObj = this.analyserOptionsObject;
 
-      contextMenu = d3.buttonWithContextMenu(symbolFn, this.graphics.container).setConfig({
-        width: 24,
-        height: 22,
-        position: 'right',
-        radius: '1',
-        className: button.className,
-        states: {
-          hover: button.states.hover.className
-        },
-        padding: {
-          top: 6,
-          bottom: 6,
-          left: 6,
-          right: 6
-        }
-      });
-
-      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.getClassName()), button);
-      self.addCssRules(contextMenu.getIndividualClassNames(contextMenu.config.states.hover), button.states.hover);
-      dm = contextMenu.config.dropDownMenu;
-      for (components in dm) {
-        component = dm[components];
-        switch (components) {
-          case 'container':
-            paper.cssAddRule('.' + component.className, dropDown.container.style);
-            break;
-          case 'listItem':
-            paper.cssAddRule('.' + component.className, dropDown.listItem.style);
-            states = component.states;
-            for (state in states) {
-              paper.cssAddRule('.' + states[state], dropDown.listItem.states[state].style);
-            }
-            break;
-        }
-      }
-      // contextMenu = new this.toolbox.SymbolWithContext('ContextIcon', {
-      //   paper: this.graphics.paper,
-      //   chart: this.chart,
-      //   smartLabel: this.smartLabel,
-      //   chartContainer: this.graphics.container
-      // }, {
-      //   width: 24,
-      //   height: 24,
-      //   position: 'right',
-      //   stroke: '#ced5d4',
-      //   strokeWidth: '1',
-      //   radius: '1',
-      //   symbolStroke: '#696969',
-      //   symbolStrokeWidth: '2'
-      // });
-      this.contextMenu = contextMenu;
-
-      contextArray.push({
-        name: 'Show Growth Over',
-        interactivity: false,
-        className: 'fc-dropdown-list-header'
-      });
-
-      popup = function (callback) {
-        var box = document.createElement('div'),
-          style = popupStyle,
+      createPopUp = function (callback, __conf) {
+        /*  type1 : simple input field
+            type2 : withouy method
+            type3 : withmethod
+        */
+        var _conf = __conf || {},
+          type = _conf.type || 1,
+          _index = _conf.index,
           containerBox = document.createElement('div'),
-          button = document.createElement('button'),
-          input = document.createElement('input'),
+          box = document.createElement('div'),
+          boxElem = document.createElement('div'),
+          transparentBack = document.createElement('div'),
           header = document.createElement('div'),
           title = document.createElement('div'),
           crossButton = document.createElement('button'),
+          button = document.createElement('button'),
+          svgContainer = d3.select(chartContainer),
+          chartWidth = self.chart && self.chart.width || 0,
+          chartHeight = self.chart && self.chart.height || 0,
+          modalConf = {
+            3: [240, 135],
+            2: [220, 110],
+            1: [180, 80]
+          },
+          x = (chartWidth / 2) - modalConf[type][0] / 2,
+          y = (chartHeight / 2) - modalConf[type][1] / 2,
+          headerWidth = modalConf[type][0],
+          modalHeight = modalConf[type][1],
+          data = _conf.data,
+          _label,
+          input,
           key,
-          svgContainer,
-          shadow,
-          headerWidth = 180,
+          val,
+          hiddenIntevals,
+          selectMethods,
+          formElement,
+          shadow = svgContainer.select('svg')
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', chartWidth)
+          .attr('height', chartHeight)
+          .attr('fill', '#000')
+          .attr('opacity', '0.35'),
+          _data = ['Minimum', 'Maximum', 'Average', 'Median', 'Standard Deviation'],
           onClickClose = function () {
             box.parentElement.removeChild(box);
             shadow.remove();
           },
-          applyValue = function () {
-            var value = input.value;
+          applyValue = function (val) {
+            var value = val;
             onClickClose();
-            callback(value);
+            callback(value, _index);
           },
-          chartWidth = self.chart && self.chart.width || 0,
-          chartHeight = self.chart && self.chart.height || 0,
-          x = (chartWidth / 2) - 90,
-          y = (chartHeight / 2) - 40;
-        // appending to box
-        // style['font-family'] = '"Lucida Grande", sans-serif';
+          addOption = function (arr, parent) {
+            for (let i = 0, ii = arr.length; i < ii; i++) {
+              let option = document.createElement('option');
+              option.value = arr[i];
+              option.id = 'option_' + i;
+              option.text = arr[i];
+              parent.appendChild(option);
+            }
+          },
+          createRadioBtns = function (arr, parent) {
+            for (let i = 0, ii = arr.length; i < ii; i++) {
+              let inputno = document.createElement('input'),
+                label = document.createElement('label');
+              inputno.type = 'radio';
+              inputno.name = 'chooseOption';
+              inputno.id = 'option_' + i;
+              inputno.value = arr[i].value;
+              inputno.style.cursor = 'pointer';
+              inputno.style.marginRight = '5px';
 
-        svgContainer = d3.select(chartContainer);
+              label.appendChild(inputno);
+              label.id = 'option_label' + i;
+              label.innerHTML += arr[i].value;
+              label.style.display = 'block';
+              label.style.fontSize = '11px';
 
-        shadow = svgContainer.select('svg').append('rect')
-                    .attr('x', 0)
-                    .attr('y', 0)
-                    .attr('width', chartWidth)
-                    .attr('height', chartHeight)
-                    .attr('fill', '#000')
-                    .attr('opacity', '0.35');
+              label.addEventListener('click', arr[i].callback);
+              parent.appendChild(label);
+            }
+          },
+          createCommonElems = function () {
+            selectMethods = document.createElement('select');
+            addOption(data, selectMethods);
 
-        // chartContainer.appendChild(svgContainer);
-        chartContainer.appendChild(box);
+            selectMethods.addEventListener('change', function () {
+              applyValue(selectMethods.options[selectMethods.selectedIndex].value);
+            });
+
+            formElement = document.createElement('form');
+            createRadioBtns(radioOptions, formElement);
+
+            containerBox.appendChild(formElement);
+            containerBox.appendChild(selectMethods);
+
+            formElement.style.display = 'block';
+            formElement.style.width = '100%';
+            formElement.style.textAlign = 'left';
+
+            selectMethods.style.display = 'none';
+            selectMethods.style.marginTop = '7px';
+          },
+          radioOptions = [{
+            value: 'Visible Range',
+            callback: function () {
+              val = 'visiblerange';
+              selectMethods.style.display = 'none';
+              applyValue(val);
+            }
+          }, {
+            value: 'Full Range',
+            callback: function () {
+              val = 'fullrange';
+              selectMethods.style.display = 'none';
+              applyValue(val);
+            }
+          }, {
+            value: 'Standard Time Interval',
+            callback: function () {
+              // show the Standard time itervals
+              selectMethods.style.display = 'block';
+              box.style.height = modalHeight + 17 + 'px';
+            }
+          }];
 
         box.unselectable = 'on';
         box.style.position = 'absolute';
@@ -569,13 +474,13 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         box.style.stroke = 'rgb(103, 103, 103)';
         box.style.width = headerWidth + 'px';
         box.style.backgroundColor = 'rgb(247, 247, 247)';
-        box.style.height = 80 + 'px';
+        box.style.height = modalHeight + 'px';
         box.style.fontFamily = '"Lucida Grande", sans-serif';
-
-        for (key in style) {
-          box.style[key] = style[key];
+        // global popup style
+        for (key in popupStyle) {
+          box.style[key] = popupStyle[key];
         }
-
+        // setting up cross button
         crossButton.innerHTML = 'X';
         crossButton.style.paddingTop = '-3px';
         crossButton.type = 'button';
@@ -583,7 +488,6 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         crossButton.style.display = 'inline';
         crossButton.style.marginTop = '-3px';
         crossButton.style.cursor = 'pointer';
-        // crossButton.style.marginleft = '2px';
         crossButton.style.height = '21px';
         crossButton.style.lineHeight = '1';
         crossButton.style.width = '24px';
@@ -591,8 +495,8 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         crossButton.style.backgroundColor = 'rgb(210, 210, 210)';
         crossButton.style.color = 'rgb(140, 140, 140)';
         crossButton.style.stroke = 'rgb(103, 103, 103)';
-
         crossButton.addEventListener('click', onClickClose);
+
         // title.style.padding = '5' + 'px';
         title.innerHTML = 'Provide Value';
         title.style.fontSize = '10px';
@@ -612,259 +516,196 @@ FusionCharts.register('extension', ['private', 'growth-analyser', function () {
         header.style.stroke = 'rgb(103, 103, 103)';
         header.style.width = (headerWidth - 12) + 'px';
         header.style.height = 18 + 'px';
-        for (key in style) {
-          header.style[key] = style[key];
+        for (key in popupStyle) {
+          header.style[key] = popupStyle[key];
         }
 
-        input.style.width = '54%';
-        input.style.height = '20px';
-        input.style.border = '2px solid rgb(218, 219, 218)';
-        input.style.stroke = 'rgb(103, 103, 103)';
-        input.style.margin = '0px';
-        input.style['font-size'] = '13px';
-        input.addEventListener('keyup', function (e) {
-          if (e.keyCode === 13) {
-            applyValue();
-          } else {
-            input.value = input.value.replace(/[^\d.-]/g, '');
-          }
-        });
+        containerBox.style.textAlign = 'left';
+        containerBox.style.padding = '12px';
 
-        input.addEventListener('keydown', function (e) {
-          input.value = input.value.replace(/[^\d.-]/g, '');
-        });
-
-        // click listener
-        button.style.float = 'right';
-        button.style.borderRadius = '1px';
-        button.style.color = '#fff';
-        button.style.background = '#555555';
-        button.style.fontSize = '10px';
-        button.style.borderRadius = '5px';
-        button.style.border = '1px solid rgba(0,0,0,0.4)';
-        button.style.height = '22px';
-        button.style.width = '50px';
-        button.style.cursor = 'pointer';
-
-        button.addEventListener('click', applyValue);
-        // input customization
-        button.innerHTML = 'Apply';
-
-        containerBox.style.textAlign = 'center';
-        containerBox.style.paddingTop = '18px';
-        containerBox.style.paddingRight = '10px';
-        // appending to containerBox
         header.appendChild(title);
         header.appendChild(crossButton);
-        containerBox.appendChild(input);
-        containerBox.appendChild(button);
+
+        switch (type) {
+          case 1:
+            let val;
+            input = document.createElement('input');
+            // style input box
+            input.style.width = '54%';
+            input.style.height = '20px';
+            input.style.border = '2px solid rgb(218, 219, 218)';
+            input.style.stroke = 'rgb(103, 103, 103)';
+            input.style.margin = '0px';
+            input.style['font-size'] = '13px';
+            input.addEventListener('keyup', function (e) {
+              if (e.keyCode === 13) {
+                applyValue(input.value);
+              } else {
+                val = input.value.replace(/[^\d.-]/g, '');
+              }
+            });
+            // on key down event listener
+            input.addEventListener('keydown', function (e) {
+              val = input.value.replace(/[^\d.-]/g, '');
+            });
+
+            // click listener
+            button.style.float = 'right';
+            button.style.borderRadius = '1px';
+            button.style.color = '#fff';
+            button.style.background = '#555555';
+            button.style.fontSize = '10px';
+            button.style.borderRadius = '5px';
+            button.style.border = '1px solid rgba(0,0,0,0.4)';
+            button.style.height = '22px';
+            button.style.width = '50px';
+            button.style.cursor = 'pointer';
+            button.addEventListener('click', function (e) {
+              applyValue(val);
+            });
+            // input customization
+            button.innerHTML = 'Apply';
+
+            containerBox.appendChild(input);
+            containerBox.appendChild(button);
+            break;
+          case 2:
+            createCommonElems();
+            break;
+          case 3:
+            _label = document.createElement('label');
+
+            hiddenIntevals = document.createElement('select');
+            hiddenIntevals.style.marginBottom = '5px';
+            hiddenIntevals.addEventListener('click', function () {
+              // applyValue(selectMethods.options[selectMethods.selectedIndex].value);
+            });
+            addOption(_data, hiddenIntevals);
+            _label.id = 'methods';
+            _label.innerHTML += 'Methods : ';
+            _label.style.fontSize = '11px';
+            containerBox.appendChild(_label);
+            containerBox.appendChild(hiddenIntevals);
+            createCommonElems();
+            hiddenIntevals.style.display = 'inline-block';
+            break;
+        } // end of switch case
 
         // appending popup
         box.appendChild(header);
         box.appendChild(containerBox);
-        input.focus();
+        box.id = 'modal';
+        chartContainer.appendChild(box);
+
+        type === 1 && input.focus();
       };
+      // function that returns the intervals
+      getIntervals = function () {
+        return ['yearly', 'monthly', 'daily', 'hourly'];
+      };
+      iterate = function (obj, isSubCat, index) {
+        let tempOb,
+          arr = [];
 
-      // Pusing reset Button
-      contextArray.push({
-        name: 'Reset View',
-        // className: 'fc-dropdown-list-divider',
-        id: 'reset',
-        className: 'fc-dropdown-list-item-cat',
-        padding: {
-          left: 20
-        },
-        handler: function () {
-          self.analyser('reset');
-          self.preGrowthHook('reset');
-        },
-        action: 'click'
-      });
-
-      contextArray.push({
-        id: 'reset',
-        divider: true,
-        interactivity: false,
-        className: 'fc-dropdown-list-divider'
-      });
-
-      for (let i in gaOptionsObj) {
-        let key,
-          obj = {},
-          subObj = {};
-        if (!gaOptionsObj[i].submenu) {
-          key = i;
-          // obj[key] = {};
-          obj = {
-            name: key,
-            className: 'fc-dropdown-list-item-cat',
-            padding: {
-              left: 20
-            },
-            handler: function () {
-              self.analyser(gaOptionsObj[i]);
-              self.preGrowthHook(i);
-            },
-            action: 'click'
-          };
-        } else {
-          obj = {};
-          key = i;
-          obj.name = key;
-          obj.action = 'click';
-          // obj.style = subCatStyle;
-          obj.className = 'fc-dropdown-list-item-cat';
-          obj.handler = [];
-          obj.padding = {
+        for (let property in obj) {
+          tempOb = {};
+          tempOb.action = 'click';
+          tempOb.padding = {
             left: 20
           };
-          for (let j in gaOptionsObj[i]) {
-            let subMenuName = j,
-              subMenuValue = gaOptionsObj[i][j];
-            if (j === 'submenu') {
-              continue;
-            }
-            subObj = {};
-            subObj.className = 'fc-dropdown-list-item-subcat';
-            subObj.parentListName = i;
-            subObj.name = subMenuName;
-            subObj.handler = function () {
-              if (typeof subMenuValue === 'function') {
-                subMenuValue(popup);
-              } else {
-                self.analyser(subMenuValue);
-                self.preGrowthHook(subMenuName);
+          tempOb.name = property;
+          if (obj.hasOwnProperty(property)) {
+            if (typeof obj[property] === 'object' && obj[property]['submenu']) {
+              tempOb.className = 'fc-dropdown-list-item-cat';
+              tempOb.handler = iterate(obj[property], true, index);
+            } else {
+              // not a object
+              // reject submenu option
+              if (property === 'submenu') {
+                continue;
               }
-            };
-            subObj.action = 'click';
-            subObj.style = subCatStyle;
-            obj.handler.push(subObj);
-            if (j.indexOf('Custom') === -1) {
-              obj.handler.push({
-                divider: true,
-                interactivity: false,
-                className: 'fc-dropdown-list-divider'
-              });
-            }
+              tempOb.className = isSubCat ? 'fc-dropdown-list-item-cat' : 'fc-dropdown-list-item-subcat';
+              tempOb.handler = function () {
+                if (typeof obj[property] === 'function') {
+                  // obj[property](createPopUp);
+                  if (property === 'Specific Value') {
+                    createPopUp(obj[property], {
+                      type: 1,
+                      index: index
+                    });
+                  } else if (property === 'First Data') {
+                    createPopUp(obj[property], {
+                      type: 2,
+                      index: index,
+                      data: getIntervals()
+                    });
+                  } else if (property === 'Statistical Value') {
+                    createPopUp(obj[property], {
+                      type: 3,
+                      index: index,
+                      data: getIntervals()
+                    });
+                  }
+                } else {
+                  self.analyser(obj[property]);
+                  self.preGrowthHook(property);
+                }
+              };
+              tempOb.style = subCatStyle;
+            } // end of else
+            arr.push(tempOb);
           }
         }
-        contextArray.push(obj);
-        if (i.indexOf('Specific') === -1) {
-          contextArray.push({
-            divider: true,
-            className: 'fc-dropdown-list-divider'
-          });
+        return arr;
+      };
+
+      for (let i = (Object.keys(canvasGroups))
+          .length - 1; i >= 0; i--) {
+        contextMenu = canvasGroups[i].composition.impl.getMenu();
+        contextArray = [];
+        contextArray.push({
+          name: 'Show Growth Over',
+          interactivity: false,
+          className: 'fc-dropdown-list-header'
+        });
+        // Pusing reset Button
+        contextArray.push({
+          name: 'Reset View',
+          // className: 'fc-dropdown-list-divider',
+          id: 'reset',
+          className: 'fc-dropdown-list-item-cat',
+          padding: {
+            left: 20
+          },
+          handler: function () {
+            self.analyser('reset');
+            self.preGrowthHook('reset');
+          },
+          action: 'click'
+        });
+
+        contextArray.push({
+          id: 'reset',
+          divider: true,
+          interactivity: false,
+          className: 'fc-dropdown-list-divider'
+        });
+        contextArrayX = iterate(gaOptionsObj, undefined, i);
+        for (let i = 0, ii = contextArrayX.length; i < ii; i++) {
+          contextArrayX[i] && contextArray.push(contextArrayX[i]);
         }
-      }
-
-      contextMenu.add(contextArray);
-
-      group.addSymbol(contextMenu);
-      toolbar.addComponent(group);
+        contextMenu.appendList(contextArray);
+      };
       this.growthOverMode();
       return toolbar;
     };
 
-    getLogicalSpace (availableWidth, availableHeight) {
-      availableWidth /= 2;
-      var logicalSpace,
-        width = 0,
-        height = 0,
-        i,
-        ln;
-
-      for (i = 0, ln = this.toolbars.length; i < ln; i++) {
-        logicalSpace = this.toolbars[i].getLogicalSpace(availableWidth, availableHeight);
-        width = Math.max(logicalSpace.width, width);
-        height += logicalSpace.height;
-        this.toolbars[i].width = logicalSpace.width;
-        this.toolbars[i].height = logicalSpace.height;
-      }
-      height += this.padding;
-      return {
-        width: width > availableWidth ? 0 : width,
-        height: height > availableHeight ? 0 : height
-      };
-    };
-
     placeInCanvas () {
-      var self = this,
-        config = this.extData || {},
-        posWrtCanvas = config.posWrtCanvas || 'top',
-        layout = config.layout || 'inline',
-        alignment = config.alignment || 'right',
-        orientation = config.orientation || 'horizontal',
-        ref = config.ref;
-      self.padding = 5;
-      self.spaceManagerInstance.add([{
-        name: function () {
-          return 'GrowthAnalyserExt';
-        },
-        ref: function (obj) {
-          return ref === undefined ? obj.chart : ref;
-        },
-        self: function () {
-          return self;
-        },
-        priority: function () {
-          return 2;
-        },
-        layout: function (obj) {
-          return obj[layout];
-        },
-        orientation: [{
-          type: function (obj) {
-            return obj[orientation];
-          },
-          position: [{
-            type: function (obj) {
-              return obj[posWrtCanvas];
-            },
-            alignment: [{
-              type: function (obj) {
-                return obj[alignment];
-              },
-              dimensions: [function () {
-                var parent = this.getParentComponentGroup();
-                return self.getLogicalSpace(parent.getWidth(), parent.getHeight());
-              }]
-            }]
-          }]
-        }]
-      }], Object.keys(this.chartInstance.apiInstance.getComponentStore().getAllCanvas()).length);
+      return;
     };
 
-    setDrawingConfiguration (x, y, width, height, group) {
-      var mes = this.measurement;
-      mes.x = x;
-      mes.y = y;
-      mes.width = width;
-      mes.height = height;
-
-      this.parentGroup = group;
-
-      return this;
-    };
-
-    draw (x, y, width, height, group) {
-      var measurement = this.measurement,
-        toolbars = this.toolbars,
-        ln,
-        i,
-        toolbar;
-      // Setting initial growth mode
-      // this.growthOverMode();
-      x = x === undefined ? measurement.x : x;
-      y = y === undefined ? measurement.y : y;
-      width = width === undefined ? measurement.width : width;
-      height = height === undefined ? measurement.height : height;
-      group = group === undefined ? this.parentGroup : group;
-      if (width && height) {
-        for (i = 0, ln = toolbars.length; i < ln; i++) {
-          toolbar = toolbars[i];
-          toolbar.draw(x, y, group);
-        }
-      }
+    draw () {
+      return;
     };
   };
   FusionCharts.registerComponent('extensions', 'growth-analyser', GrowthAnalyserExt);
